@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chronos Canvas | Home</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0b0d11;
+        --panel: #11151b;
+        --line: #202834;
+        --text: #eef2f7;
+        --muted: #8e9aad;
+        --brand: #ec5b13;
+        --gold: #d4af37;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+      .top {
+        position: sticky; top: 0; z-index: 10;
+        background: rgba(11, 13, 17, 0.95);
+        backdrop-filter: blur(6px);
+        border-bottom: 1px solid var(--line);
+      }
+      .top-inner {
+        max-width: 1280px; margin: 0 auto; padding: 14px 18px;
+        display: flex; align-items: center; justify-content: space-between; gap: 14px;
+      }
+      .brand { font-weight: 800; font-size: 18px; letter-spacing: .03em; }
+      .brand span { color: var(--gold); }
+      .nav { display: flex; gap: 20px; align-items: center; font-size: 13px; }
+      .nav a { color: #b8c1cf; text-decoration: none; }
+      .nav a.active { color: var(--brand); border-bottom: 2px solid var(--brand); padding-bottom: 6px; }
+      .search {
+        border: 1px solid var(--line); border-radius: 999px; background: #0f1319;
+        color: var(--muted); padding: 8px 14px; min-width: 220px;
+      }
+      .wrap { max-width: 1280px; margin: 0 auto; padding: 24px 18px 28px; }
+      .hero { display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; }
+      .hero h1 { margin: 0; font-size: 48px; line-height: 1.1; }
+      .hero p { margin: 8px 0 0; color: var(--muted); }
+      .btn-primary {
+        border: none; cursor: pointer; border-radius: 12px; padding: 12px 18px;
+        background: var(--brand); color: #fff; font-weight: 700;
+        box-shadow: 0 8px 18px rgba(236, 91, 19, 0.35);
+      }
+      .tabs { margin-top: 22px; display: flex; gap: 20px; border-bottom: 1px solid var(--line); }
+      .tabs button {
+        border: 0; background: transparent; color: var(--muted); cursor: pointer;
+        padding: 10px 0; font-size: 13px;
+      }
+      .tabs button.active { color: var(--gold); border-bottom: 2px solid var(--gold); }
+      .cards {
+        margin-top: 18px;
+        display: grid; gap: 16px;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+      .card {
+        background: var(--panel); border: 1px solid #161c25; border-radius: 14px; overflow: hidden;
+      }
+      .thumb {
+        height: 130px;
+        background: radial-gradient(circle at 30% 30%, #3d4654 0, #1b232f 35%, #0f1319 100%);
+        position: relative;
+      }
+      .tag {
+        position: absolute; left: 10px; bottom: 10px;
+        font-size: 10px; letter-spacing: .06em; font-weight: 700;
+        padding: 3px 6px; border-radius: 4px;
+        background: var(--gold); color: #101010;
+      }
+      .body { padding: 12px; }
+      .title { font-size: 24px; margin: 0 0 8px; }
+      .meta { color: var(--muted); font-size: 12px; }
+      .card-empty {
+        border: 1px dashed #283141; display: flex; align-items: center; justify-content: center;
+        color: #96a0b0; min-height: 228px; border-radius: 14px; background: #10141c;
+      }
+      .stats {
+        margin-top: 36px; border-top: 1px solid var(--line); padding-top: 18px;
+      }
+      .stats h2 { margin: 0 0 14px; font-size: 30px; }
+      .stats-grid { display: grid; gap: 16px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .stat {
+        background: var(--panel); border: 1px solid #161c25; border-radius: 12px; padding: 16px;
+      }
+      .stat .v { font-size: 42px; font-weight: 800; margin-top: 8px; }
+      .bar { margin-top: 10px; height: 6px; border-radius: 999px; background: #1d2734; overflow: hidden; }
+      .bar > i { display: block; height: 100%; width: 64%; background: linear-gradient(90deg, var(--gold), var(--brand)); }
+      .footer {
+        margin-top: 24px; border-top: 1px solid var(--line); padding-top: 14px;
+        display: flex; align-items: center; justify-content: space-between; color: var(--muted); font-size: 12px;
+      }
+      .footer a { color: var(--muted); text-decoration: none; margin-left: 12px; }
+      @media (max-width: 1100px) { .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } .stats-grid { grid-template-columns: 1fr; } .hero { flex-direction: column; align-items: flex-start; } }
+      @media (max-width: 700px) { .cards { grid-template-columns: 1fr; } .nav { display:none; } .search { min-width: 140px; } .hero h1 { font-size: 34px; } .title { font-size: 18px; } .stat .v{font-size:32px;} }
+    </style>
+  </head>
+  <body>
+    <header class="top">
+      <div class="top-inner">
+        <div class="brand">时光<span>画布</span></div>
+        <nav class="nav">
+          <a href="#" class="active">仪表盘</a>
+          <a href="#">项目</a>
+          <a href="#">模板</a>
+          <a href="#">归档</a>
+          <a href="/" style="color:var(--gold)">调试中心</a>
+        </nav>
+        <input class="search" value="搜索存档..." readonly />
+      </div>
+    </header>
+
+    <main class="wrap">
+      <section class="hero">
+        <div>
+          <h1>记忆项目</h1>
+          <p>在数字时光金库中策展您的生活故事和编年史叙事。</p>
+        </div>
+        <button class="btn-primary" id="new-project-btn">+ 新建项目</button>
+      </section>
+
+      <section class="tabs">
+        <button class="active">所有收藏</button>
+        <button>个人传说</button>
+        <button>共享历史</button>
+        <button>草稿</button>
+      </section>
+
+      <section class="cards" id="project-cards"></section>
+
+      <section class="stats">
+        <h2>项目统计</h2>
+        <div class="stats-grid">
+          <div class="stat">
+            <div class="meta">总节点数</div>
+            <div class="v" id="stat-node-count">0</div>
+            <div class="bar"><i></i></div>
+          </div>
+          <div class="stat">
+            <div class="meta">项目数量</div>
+            <div class="v" id="stat-project-count">0</div>
+            <div class="bar"><i style="width:45%"></i></div>
+          </div>
+          <div class="stat">
+            <div class="meta">本地资产条目</div>
+            <div class="v" id="stat-asset-count">0</div>
+            <div class="bar"><i style="width:72%"></i></div>
+          </div>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <div>© 2024 时光画布档案系统</div>
+        <div>
+          <a href="#">隐私</a>
+          <a href="#">文档</a>
+          <a href="#">接口</a>
+        </div>
+      </footer>
+    </main>
+
+    <script>
+      async function loadConfig() {
+        const r = await fetch("/api/config");
+        if (!r.ok) return { apiBaseUrl: "http://127.0.0.1:8787" };
+        return r.json();
+      }
+
+      function cardHtml(title, subtitle, tag) {
+        return `
+          <article class="card">
+            <div class="thumb"><span class="tag">${tag}</span></div>
+            <div class="body">
+              <h3 class="title">${title}</h3>
+              <div class="meta">● ${subtitle}</div>
+            </div>
+          </article>
+        `;
+      }
+
+      async function bootstrap() {
+        const cfg = await loadConfig();
+        const apiBase = cfg.apiBaseUrl || "http://127.0.0.1:8787";
+        const cards = document.getElementById("project-cards");
+        const statProject = document.getElementById("stat-project-count");
+        const statNode = document.getElementById("stat-node-count");
+        const statAsset = document.getElementById("stat-asset-count");
+
+        let projects = [];
+        try {
+          const r = await fetch(apiBase + "/api/projects");
+          const j = await r.json();
+          projects = Array.isArray(j.projects) ? j.projects : [];
+        } catch (_) {
+          projects = [];
+        }
+
+        if (!projects.length) {
+          cards.innerHTML =
+            cardHtml("时间起源", "最后编辑: 2小时前", "VINTAGE") +
+            cardHtml("极乐世界", "最后编辑: 昨天", "NOIR") +
+            cardHtml("星际回忆", "最后编辑: 待编辑", "STELLAR") +
+            cardHtml("祖先回声", "最后编辑: 待编辑", "ARCHIVAL") +
+            cardHtml("玻璃档案馆", "最后编辑: 待编辑", "PRISM") +
+            cardHtml("星业纪事", "最后编辑: 待编辑", "NEBULA") +
+            `<article class="card-empty">开始新叙事</article>`;
+          statProject.textContent = "0";
+          statNode.textContent = "0";
+          statAsset.textContent = "0";
+          return;
+        }
+
+        const tags = ["VINTAGE", "NOIR", "STELLAR", "ARCHIVAL", "PRISM", "NEBULA"];
+        let nodeCount = 0;
+        let assetCount = 0;
+        cards.innerHTML = projects
+          .slice(0, 7)
+          .map((p, i) => {
+            nodeCount += Number(p.nodeCount || 0);
+            return cardHtml(p.title || p.name, `最后编辑: ${new Date(p.updatedAt).toLocaleString()}`, tags[i % tags.length]);
+          })
+          .join("");
+        cards.insertAdjacentHTML("beforeend", `<article class="card-empty">开始新叙事</article>`);
+
+        // 统计第一项目资产数（轻量策略）
+        if (projects[0]) {
+          try {
+            const r = await fetch(apiBase + "/api/projects/" + encodeURIComponent(projects[0].id) + "/assets");
+            const j = await r.json();
+            assetCount = Array.isArray(j.assets) ? j.assets.length : 0;
+          } catch (_) {}
+        }
+
+        statProject.textContent = String(projects.length);
+        statNode.textContent = String(nodeCount);
+        statAsset.textContent = String(assetCount);
+      }
+
+      document.getElementById("new-project-btn").addEventListener("click", () => {
+        window.location.href = "/";
+      });
+      bootstrap();
+    </script>
+  </body>
+</html>
