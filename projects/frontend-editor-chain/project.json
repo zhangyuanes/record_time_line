@@ -1,0 +1,15 @@
+{
+  "id": "project_6c2ba90313",
+  "name": "Frontend Editor Chain",
+  "slug": "frontend-editor-chain",
+  "title": "Frontend Editor Chain",
+  "description": "",
+  "createdAt": "2026-03-04T13:52:41.007Z",
+  "updatedAt": "2026-03-04T13:52:41.094Z",
+  "themeConfig": {
+    "themeId": "minimal-list",
+    "motionLevel": "medium"
+  },
+  "storagePath": "/Users/zhangyuan/code/record_time_line/projects/frontend-editor-chain",
+  "nodeCount": 1
+}

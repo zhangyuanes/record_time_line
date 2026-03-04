@@ -1,0 +1,73 @@
+{
+  "version": "0.1.0",
+  "sourceRoot": "pages_ui",
+  "pages": [
+    {
+      "id": "dashboard",
+      "name": "项目仪表盘",
+      "route": "/dashboard",
+      "prototype": {
+        "html": "pages_ui/dash页/code.html",
+        "screenshot": "pages_ui/dash页/screen.png"
+      },
+      "targets": [
+        "apps/web/src/features/dashboard"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "editor",
+      "name": "编辑页",
+      "route": "/editor/:projectId",
+      "prototype": {
+        "html": "pages_ui/编辑页/code.html",
+        "screenshot": "pages_ui/编辑页/screen.png"
+      },
+      "targets": [
+        "apps/web/src/features/editor",
+        "apps/web/src/features/timeline"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "export",
+      "name": "导出页",
+      "route": "/export/:projectId",
+      "prototype": {
+        "html": "pages_ui/导出页/code.html",
+        "screenshot": "pages_ui/导出页/screen.png"
+      },
+      "targets": [
+        "apps/web/src/features/export"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "viewer",
+      "name": "预览与导出后页面",
+      "route": "/viewer/:projectId",
+      "prototype": {
+        "html": "pages_ui/预览与导出后页面/code.html",
+        "screenshot": "pages_ui/预览与导出后页面/screen.png"
+      },
+      "targets": [
+        "apps/web/src/features/viewer"
+      ],
+      "status": "planned"
+    }
+  ],
+  "motionTokens": {
+    "micro": {
+      "durationMs": 140,
+      "easing": "ease-out"
+    },
+    "standard": {
+      "durationMs": 240,
+      "easing": "ease-in-out"
+    },
+    "emphasis": {
+      "durationMs": 420,
+      "easing": "cubic-bezier(0.2, 0.8, 0.2, 1)"
+    }
+  }
+}

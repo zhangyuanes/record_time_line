@@ -1,0 +1,49 @@
+{
+  "version": "0.1.0",
+  "meta": {
+    "projectId": "project_22252fb7d1",
+    "title": "Step4 Field Full Demo",
+    "description": "",
+    "themeConfig": {
+      "themeId": "minimal-list",
+      "motionLevel": "medium"
+    }
+  },
+  "nodes": [
+    {
+      "id": "node_0fc7274247",
+      "timestamp": "2026-03-01T00:00:00.000Z",
+      "title": "test",
+      "body": "",
+      "type": "standard",
+      "layout": "left",
+      "highlight": false,
+      "media": [],
+      "createdAt": "2026-03-04T13:26:05.008Z",
+      "updatedAt": "2026-03-04T13:26:05.008Z"
+    },
+    {
+      "id": "node_e510430745",
+      "timestamp": "2026-03-05T10:30:00.000Z",
+      "displayDateOverride": "2026年3月5日 上午",
+      "title": "Full Node",
+      "body": "## 已更新\n更多内容",
+      "type": "gallery",
+      "layout": "center",
+      "highlight": true,
+      "media": [
+        {
+          "src": "./assets/a.jpg"
+        }
+      ],
+      "link": {
+        "url": "https://example.org",
+        "text": "更新链接"
+      },
+      "createdAt": "2026-03-04T13:20:16.829Z",
+      "updatedAt": "2026-03-04T13:20:16.871Z"
+    }
+  ],
+  "createdAt": "2026-03-04T13:20:16.738Z",
+  "updatedAt": "2026-03-04T13:26:05.009Z"
+}

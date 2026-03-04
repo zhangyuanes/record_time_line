@@ -1,0 +1,32 @@
+{
+  "version": "0.1.0",
+  "meta": {
+    "projectId": "project_f477bb99b8",
+    "title": "Step5 Asset Demo",
+    "description": "",
+    "themeConfig": {
+      "themeId": "minimal-list",
+      "motionLevel": "medium"
+    }
+  },
+  "nodes": [
+    {
+      "id": "node_ebc6087574",
+      "timestamp": "2026-03-01T00:00:00.000Z",
+      "title": "ref asset",
+      "body": "",
+      "type": "standard",
+      "layout": "left",
+      "highlight": false,
+      "media": [
+        {
+          "src": "./assets/asset_7c0ea16ba2.txt"
+        }
+      ],
+      "createdAt": "2026-03-04T13:31:52.210Z",
+      "updatedAt": "2026-03-04T13:31:52.210Z"
+    }
+  ],
+  "createdAt": "2026-03-04T13:31:51.948Z",
+  "updatedAt": "2026-03-04T13:31:52.210Z"
+}

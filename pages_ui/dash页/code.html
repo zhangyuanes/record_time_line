@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700;900&amp;display=swap" rel="stylesheet"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chronos Canvas | Memory Projects</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ec5b13",
+                        "accent-gold": "#d4af37",
+                        "obsidian": "#1a1a1a",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#121212",
+                    },
+                    fontFamily: {
+                        "display": ["PingFang SC", "sans-serif"],
+                        "serif-sc": ["Noto Serif SC", "serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }</script>
+<style>
+        .glass-nav {
+            background: rgba(26, 26, 26, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+        }
+        .obsidian-card {
+            background: rgba(30, 30, 30, 0.6);
+            border: 1px solid rgba(212, 175, 55, 0.05);
+            transition: all 0.3s ease;
+        }
+        .obsidian-card:hover {
+            border-color: rgba(212, 175, 55, 0.3);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+<!-- Header / Glassmorphism Top Nav -->
+<header class="glass-nav sticky top-0 z-50 px-6 lg:px-20 py-4 flex items-center justify-between">
+<div class="flex items-center gap-10">
+<div class="flex items-center gap-3">
+<div class="p-2 bg-primary/10 rounded-lg">
+<span class="material-symbols-outlined text-primary text-2xl">history_edu</span>
+</div>
+<h1 class="text-xl font-black tracking-tighter uppercase text-slate-900 dark:text-slate-100 font-serif-sc">时光 <span class="text-accent-gold">画布</span></h1>
+</div>
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-sm font-semibold text-primary border-b-2 border-primary pb-1" href="#">仪表盘</a>
+<a class="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-accent-gold transition-colors" href="#">项目</a>
+<a class="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-accent-gold transition-colors" href="#">模板</a>
+<a class="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-accent-gold transition-colors" href="#">归档</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
+<input class="bg-slate-200/50 dark:bg-obsidian border-none rounded-full pl-10 pr-4 py-2 text-sm w-64 focus:ring-1 focus:ring-accent-gold/50" placeholder='"搜索存档..."' type="text"/>
+</div>
+</div>
+</header>
+<main class="flex-1 max-w-7xl mx-auto w-full px-6 lg:px-12 py-12">
+<!-- Welcome & Action Bar -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+<div>
+<h2 class="text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-100 mb-2 font-serif-sc">记忆项目</h2>
+<p class="text-slate-500 dark:text-slate-400 text-lg max-w-xl">在数字时光金库中策展您的生活故事和编年史叙事。</p>
+</div>
+<button class="flex items-center justify-center gap-2 bg-primary text-white font-bold px-8 py-4 rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
+<span class="material-symbols-outlined">add_circle</span>
+<span>新建项目</span>
+</button>
+</div>
+<!-- Categories / Filter -->
+<div class="flex items-center gap-8 border-b border-slate-200 dark:border-slate-800 mb-10">
+<button class="pb-4 text-sm font-bold border-b-2 border-accent-gold text-accent-gold">所有收藏</button>
+<button class="pb-4 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors">个人传说</button>
+<button class="pb-4 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors">共享历史</button>
+<button class="pb-4 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors">草稿</button>
+</div>
+<!-- Projects Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+<!-- Project Card 1 -->
+<div class="obsidian-card rounded-xl p-4 group cursor-pointer">
+<div class="relative w-full aspect-[4/3] rounded-lg overflow-hidden mb-4">
+<div class="absolute inset-0 bg-gradient-to-t from-obsidian/80 to-transparent"></div>
+<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" data-alt="Subtle mountain landscape at dusk" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAGB6L8OPK_O_l0Ltu-lP0M6n2R5-ZAI2HPbmou9-w1UrVxmMXwhxyFCI4jZk8ji24plLmkIuSqxWuv-XHv1psPywtO4VIdQ16IMfM-LeLT-vfC6wndxKTltDq-Z00v8hnNLo32yJx_Efy31QkZBwKkmixDnNhhWWJMKYdSE0A1N4wJbbi64IA2VvMp-BnpjmRcJHD84P1bvCZLQUPnXqavnB55GCrLqZ0iFYVxqeNZBC2ltAX_h15tgXvvQzhjLlZcyYDSwvFWyDGJ"/>
+<div class="absolute bottom-3 left-3 px-2 py-1 bg-accent-gold/90 text-black text-[10px] font-black uppercase tracking-widest rounded">VINTAGE</div>
+</div>
+<div>
+<h3 class="text-slate-900 dark:text-slate-100 font-bold text-lg leading-tight mb-1 group-hover:text-accent-gold transition-colors font-serif-sc">时间起源</h3>
+<div class="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-xs">
+<span class="material-symbols-outlined text-sm">schedule</span>
+<span>最后编辑: 2小时前</span>
+</div>
+</div>
+</div>
+<!-- Project Card 2 -->
+<div class="obsidian-card rounded-xl p-4 group cursor-pointer">
+<div class="relative w-full aspect-[4/3] rounded-lg overflow-hidden mb-4">
+<div class="absolute inset-0 bg-gradient-to-t from-obsidian/80 to-transparent"></div>
+<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" data-alt="Architectural minimalist staircase pattern" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCD25B6jHNVm5G3s2pAY_d_mKHcfjggLoAoRL38OJsAuIhQt1_avGC-ugrKj_myc1HFbp2j88YLcEVdw7khM1KPtaEdIPGCPlB2tr_sXbwJyoaXQS9n7AxpSNHeeKDI3N0ZfWYhPSbldHN2Y_fCGtOW0_Q9FKUBFfVhpOFRx4vz0j7GbtvI9OXg3Qm4k7wxAtxrwFLPkBmdyjDQcDKd55WBm0pWaBw0shRcbOEvZzQ3i5KONSgAZ_wJQV0v3x5ReT6m1L7DAuVkh-6u"/>
+<div class="absolute bottom-3 left-3 px-2 py-1 bg-slate-800/90 text-white text-[10px] font-black uppercase tracking-widest rounded">NOIR</div>
+</div>
+<div>
+<h3 class="text-slate-900 dark:text-slate-100 font-bold text-lg leading-tight mb-1 group-hover:text-accent-gold transition-colors font-serif-sc">极乐世界</h3>
+<div class="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-xs">
+<span class="material-symbols-outlined text-sm">schedule</span>
+<span>最后编辑: 昨天</span>
+</div>
+</div>
+</div>
+<!-- Project Card 3 -->
+<div class="obsidian-card rounded-xl p-4 group cursor-pointer">
+<div class="relative w-full aspect-[4/3] rounded-lg overflow-hidden mb-4">
+<div class="absolute inset-0 bg-gradient-to-t from-obsidian/80 to-transparent"></div>
+<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" data-alt="Distant nebula in deep space" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCoYejf8zU9DdRoBEAO7oJOX3FQs5VSiQb01dkaifoz6c6HtAJI_CCPOvpGpUfp7MR8oNkIReNZpEniMz2e2JwExdlj_s-whJqvjmvp6j2MESN4XmJbTQWYdA8O20JZA961POiRaVuX8tDQ-eSz2HdqhA8-J46ugF5h_VwVMqSthLC1p2cNC9wR92ZSE_X2D87xvDlOVOUfeewDvZqs0f2VF7AW88LkkS5NKEbw8KrP6o91n9L7FilZDlA0a9cKye8pPrs7PAAshMe-"/>
+<div class="absolute bottom-3 left-3 px-2 py-1 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded">STELLAR</div>
+</div>
+<div>
+<h3 class="text-slate-900 dark:text-slate-100 font-bold text-lg leading-tight mb-1 group-hover:text-accent-gold transition-colors font-serif-sc">星际回忆</h3>
+<div class="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-xs">
+<span class="material-symbols-outlined text-sm">schedule</span>
+<span>最后编辑: </span>
+</div>
+</div>
+</div>
+<!-- Project Card 4 -->
+<div class="obsidian-card rounded-xl p-4 group cursor-pointer">
+<div class="relative w-full aspect-[4/3] rounded-lg overflow-hidden mb-4">
+<div class="absolute inset-0 bg-gradient-to-t from-obsidian/80 to-transparent"></div>
+<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" data-alt="Ancient parchment and ink jar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAG4ezusjpwjsD-fnhDsYBSF84iy4exh_DAdZicUc0sL7W80mBcuESGSvLWRC_MULM-D1BfgVZHzBZufz5EeNv7oEaXP8DnmO0aEKl8nskqF9zfkSK1U-XCKYxe3x4G7xL42iUU9PemReb_kqrgiLZz04sGT1F7sqieeiqbs7klQBqs3ynF4BTCetO-1d-LDygGLf9IaVFHB2hV4HXxHtiXX8kfncbe93y1Bd4Eu3oLv04CKhkO2CnNY9ykEzL7e8UkvwrEgnveivXC"/>
+<div class="absolute bottom-3 left-3 px-2 py-1 bg-slate-800/90 text-white text-[10px] font-black uppercase tracking-widest rounded">ARCHIVAL</div>
+</div>
+<div>
+<h3 class="text-slate-900 dark:text-slate-100 font-bold text-lg leading-tight mb-1 group-hover:text-accent-gold transition-colors font-serif-sc">祖先回声</h3>
+<div class="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-xs">
+<span class="material-symbols-outlined text-sm">schedule</span>
+<span>最后编辑: </span>
+</div>
+</div>
+</div>
+<!-- Project Card 5 -->
+<div class="obsidian-card rounded-xl p-4 group cursor-pointer">
+<div class="relative w-full aspect-[4/3] rounded-lg overflow-hidden mb-4">
+<div class="absolute inset-0 bg-gradient-to-t from-obsidian/80 to-transparent"></div>
+<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" data-alt="Prism reflecting rainbow light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAu8p2AXSImu_3lE4noHTYjMoXc15M2lueyUkYqwanRw5Frjrf4l04CY8PuO2W2yVMa62xGwhCucqxTmoelPGhJWzYa-pZBGHSoaqYdR9Wy8XkW_PckD4hzAaYt-Z8RMx6di6HtnLUhsl-F8gRoGSQ2bMLASSX99P60AJm9Bs5geurIScw8fHX_L7G0qA_jXcNEkbucg55pb0QFSttKkPOKnHpR47tNLgDIuIPwv5DauCTLQwfaATp8bjHVr9ovZNdBqcsLaGi7dOcp"/>
+<div class="absolute bottom-3 left-3 px-2 py-1 bg-accent-gold/90 text-black text-[10px] font-black uppercase tracking-widest rounded">PRISM</div>
+</div>
+<div>
+<h3 class="text-slate-900 dark:text-slate-100 font-bold text-lg leading-tight mb-1 group-hover:text-accent-gold transition-colors font-serif-sc">玻璃档案馆</h3>
+<div class="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-xs">
+<span class="material-symbols-outlined text-sm">schedule</span>
+<span>最后编辑: </span>
+</div>
+</div>
+</div>
+<!-- Project Card 6 -->
+<div class="obsidian-card rounded-xl p-4 group cursor-pointer">
+<div class="relative w-full aspect-[4/3] rounded-lg overflow-hidden mb-4">
+<div class="absolute inset-0 bg-gradient-to-t from-obsidian/80 to-transparent"></div>
+<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" data-alt="Deep space galaxy cluster" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBn1k9KSdT_RCjSXewWVTrUUFZu8ox1deqG0QjwDAJE5Ophy8te-mnU8Wmt0lkSeHtLXWnpi7ROShMrDhqtOpKUUXWsnT0Mak1w_adw9uVpEPDrUZl0iSaKKSieFE7Y7AxX2BZpEUF_nL7y_FI0EzpHghkXhlMMa5SNgYvsoL8wzkGX9JPG_74Ax7jOEw33-e0nT9fF96Gomx1HbNLmIMTpdlBbvofFDWiZ7xisQNSq4u1qyaaw1PTE9u4-JfvihjhC3B-x_i-ilGuk"/>
+<div class="absolute bottom-3 left-3 px-2 py-1 bg-slate-800/90 text-white text-[10px] font-black uppercase tracking-widest rounded">NEBULA</div>
+</div>
+<div>
+<h3 class="text-slate-900 dark:text-slate-100 font-bold text-lg leading-tight mb-1 group-hover:text-accent-gold transition-colors font-serif-sc">星业纪事</h3>
+<div class="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-xs">
+<span class="material-symbols-outlined text-sm">schedule</span>
+<span>最后编辑: </span>
+</div>
+</div>
+</div>
+<!-- Empty State / New Card Button -->
+<div class="border-2 border-dashed border-slate-300 dark:border-slate-800 rounded-xl flex flex-col items-center justify-center p-8 group cursor-pointer hover:border-accent-gold/50 transition-colors bg-transparent">
+<div class="w-12 h-12 rounded-full bg-slate-200 dark:bg-obsidian flex items-center justify-center mb-4 group-hover:bg-accent-gold/10 transition-colors">
+<span class="material-symbols-outlined text-slate-400 group-hover:text-accent-gold">add</span>
+</div>
+<span class="text-sm font-bold text-slate-500 dark:text-slate-400 group-hover:text-slate-200">开始新叙事</span>
+</div>
+</div>
+<!-- Stats Section -->
+<section class="mt-24 border-t border-slate-200 dark:border-slate-800 pt-12">
+<h2 class="text-2xl font-bold mb-8 flex items-center gap-3 font-serif-sc"><span class="material-symbols-outlined text-accent-gold">insights</span> 项目统计</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="p-6 rounded-xl bg-slate-100 dark:bg-obsidian border border-transparent dark:border-slate-800">
+<p class="text-slate-500 dark:text-slate-400 text-xs uppercase font-black tracking-widest mb-2">在数字时光金库中策展您的生活故事和编年史叙事。</p>
+<p class="text-3xl font-bold">1,284</p>
+<div class="mt-4 h-1.5 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-accent-gold w-[75%] rounded-full"></div>
+</div>
+</div>
+<div class="p-6 rounded-xl bg-slate-100 dark:bg-obsidian border border-transparent dark:border-slate-800">
+<p class="text-slate-500 dark:text-slate-400 text-xs uppercase font-black tracking-widest mb-2">在数字时光金库中策展您的生活故事和编年史叙事。</p>
+<p class="text-3xl font-bold">42.8 GB</p>
+<div class="mt-4 h-1.5 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[40%] rounded-full"></div>
+</div>
+</div>
+<div class="p-6 rounded-xl bg-slate-100 dark:bg-obsidian border border-transparent dark:border-slate-800">
+<p class="text-slate-500 dark:text-slate-400 text-xs uppercase font-black tracking-widest mb-2">在数字时光金库中策展您的生活故事和编年史叙事。</p>
+<div class="flex items-center gap-4 mt-1">
+<p class="text-3xl font-bold">在数字时光金库中策展您的生活故事和编年史叙事。</p>
+<div class="flex -space-x-3">
+<div class="w-8 h-8 rounded-full border-2 border-obsidian bg-slate-500"></div>
+<div class="w-8 h-8 rounded-full border-2 border-obsidian bg-slate-400"></div>
+<div class="w-8 h-8 rounded-full border-2 border-obsidian bg-slate-600"></div>
+<div class="w-8 h-8 rounded-full border-2 border-obsidian bg-accent-gold flex items-center justify-center text-[10px] font-bold">+9</div>
+</div>
+</div>
+<div class="mt-4 h-1.5 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-slate-400 w-[90%] rounded-full"></div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer Footer -->
+<footer class="px-6 lg:px-20 py-8 border-t border-slate-200 dark:border-slate-800 flex flex-col md:flex-row justify-between items-center gap-6">
+<div class="flex items-center gap-2 opacity-50">
+<span class="material-symbols-outlined text-sm">history_edu</span>
+<p class="text-xs font-bold uppercase tracking-widest">© 2024 时光画布档案系统</p>
+</div>
+<div class="flex gap-8 text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+<a class="hover:text-accent-gold transition-colors" href="#">隐私</a>
+<a class="hover:text-accent-gold transition-colors" href="#">文档</a>
+<a class="hover:text-accent-gold transition-colors" href="#">接口</a>
+</div>
+</footer>
+</div>
+</body></html>

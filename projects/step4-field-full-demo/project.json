@@ -1,0 +1,15 @@
+{
+  "id": "project_22252fb7d1",
+  "name": "Step4 Field Full Demo",
+  "slug": "step4-field-full-demo",
+  "title": "Step4 Field Full Demo",
+  "description": "",
+  "createdAt": "2026-03-04T13:20:16.737Z",
+  "updatedAt": "2026-03-04T13:26:05.009Z",
+  "themeConfig": {
+    "themeId": "minimal-list",
+    "motionLevel": "medium"
+  },
+  "storagePath": "/Users/zhangyuan/code/record_time_line/projects/step4-field-full-demo",
+  "nodeCount": 1
+}

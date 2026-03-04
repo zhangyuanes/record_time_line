@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>时光画布 - 现代黑曜石</title>
+<!-- Tailwind CSS CDN with plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration for Custom Colors -->
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            obsidian: {
+              900: '#0f0f0f',
+              800: '#1a1a1a',
+              700: '#262626',
+              600: '#333333',
+              500: '#4d4d4d',
+            },
+            gold: {
+              soft: '#d4af37',
+              muted: '#aa8c2c',
+            }
+          }
+        }
+      }
+    }
+  </script>
+<!-- Custom Styles for UI Polish -->
+<style data-purpose="layout-and-scroll">
+    body {
+      background-color: #0f0f0f;
+      color: #e5e5e5;
+      overflow: hidden; /* Prevent body scroll, use container scrolls */
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #1a1a1a;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #333333;
+      border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #4d4d4d;
+    }
+  </style>
+<style data-purpose="timeline-decoration">
+    .timeline-line::before {
+      content: '';
+      position: absolute;
+      left: 20px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(180deg, #d4af37 0%, #333333 100%);
+    }
+  </style><style> body { font-family: 'PingFang SC', 'Inter', sans-serif; } h1, h2, h3, .font-serif { font-family: 'Noto Serif SC', serif; } </style>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/></head>
+<body class="h-screen flex flex-col font-sans">
+<!-- BEGIN: Main Interface Wrapper -->
+<main class="flex flex-1 overflow-hidden">
+<!-- BEGIN: Left Sidebar (30% Width) -->
+<aside class="w-[30%] border-r border-obsidian-700 bg-obsidian-800 flex flex-col h-full" data-purpose="node-sidebar">
+<header class="p-6 border-b border-obsidian-700">
+<h2 class="text-xs uppercase tracking-widest text-gold-soft font-semibold">节点大纲</h2>
+</header>
+<div class="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-3">
+<!-- Node Item 1 -->
+<div class="group flex items-center p-3 bg-obsidian-700/50 rounded-md border border-obsidian-600 hover:border-gold-soft/50 transition-all cursor-pointer">
+<div class="mr-3 text-obsidian-500 group-hover:text-gold-soft">
+<svg class="h-5 w-5" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 8h16M4 16h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<span class="text-sm truncate">奠基 (1920)</span>
+</div>
+<!-- Node Item 2 -->
+<div class="group flex items-center p-3 bg-obsidian-700 rounded-md border border-gold-soft/30 transition-all cursor-pointer shadow-lg shadow-black/20">
+<div class="mr-3 text-gold-soft">
+<svg class="h-5 w-5" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 8h16M4 16h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<span class="text-sm truncate font-medium text-white">大转折</span>
+</div>
+<!-- Node Item 3 -->
+<div class="group flex items-center p-3 bg-obsidian-700/50 rounded-md border border-obsidian-600 hover:border-gold-soft/50 transition-all cursor-pointer">
+<div class="mr-3 text-obsidian-500 group-hover:text-gold-soft">
+<svg class="h-5 w-5" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 8h16M4 16h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<span class="text-sm truncate text-obsidian-500">阿尔法扩张阶段</span>
+</div>
+<!-- Node Item 4 -->
+<div class="group flex items-center p-3 bg-obsidian-700/50 rounded-md border border-obsidian-600 hover:border-gold-soft/50 transition-all cursor-pointer">
+<div class="mr-3 text-obsidian-500 group-hover:text-gold-soft">
+<svg class="h-5 w-5" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 8h16M4 16h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<span class="text-sm truncate">现代韧性</span>
+</div>
+</div>
+<div class="p-4 border-t border-obsidian-700 bg-obsidian-900/50">
+<button class="w-full py-2 px-4 rounded border border-dashed border-obsidian-500 text-obsidian-500 text-xs hover:border-gold-soft hover:text-gold-soft transition-colors flex items-center justify-center">
+<span class="mr-2 text-lg">添加新节点</span> Add New Node
+        </button>
+</div>
+</aside>
+<!-- END: Left Sidebar -->
+<!-- BEGIN: Right Content Area (70% Width) -->
+<section class="w-[70%] bg-obsidian-900 flex flex-col relative" data-purpose="timeline-visualization">
+<!-- Timeline Navigation Bar -->
+<nav class="h-14 border-b border-obsidian-800 flex items-center justify-between px-8 bg-obsidian-900/80 backdrop-blur-md sticky top-0 z-10">
+<div class="flex items-center space-x-4">
+<h1 class="text-lg font-light tracking-wide">项目：<span class="text-gold-soft font-normal">光的起源</span></h1>
+</div>
+<div class="flex space-x-2">
+<button class="px-3 py-1 text-xs rounded bg-obsidian-700 hover:bg-obsidian-600 text-white transition-colors">预览</button>
+<button class="px-3 py-1 text-xs rounded bg-gold-soft hover:bg-gold-muted text-obsidian-900 font-bold transition-colors">导出</button>
+</div>
+</nav>
+<!-- Interactive Timeline Canvas -->
+<div class="flex-1 overflow-y-auto custom-scrollbar p-12 timeline-line relative"><!-- Highlighted Gallery Node (Center Layout) -->
+<div class="relative pl-12 mb-20 flex flex-col items-center text-center">
+<div class="absolute left-[-24px] top-1 w-6 h-6 rounded-full bg-gold-soft shadow-[0_0_20px_rgba(212,175,55,0.8)] z-10 animate-pulse border-4 border-obsidian-900"></div>
+<div class="max-w-3xl w-full scale-105">
+<span class="text-gold-soft font-mono text-xs mb-2 block tracking-widest uppercase">1920年 10月 · 关键节点</span>
+<h3 class="text-3xl font-semibold mb-4 text-white font-serif">奠基之光</h3>
+<p class="text-obsidian-500 leading-relaxed text-sm mb-6">最初的概念框架是在苏黎世的一个小工作室里起草的。这段时期标志着从传统光学向量子可视化方法的转变。</p>
+<div class="grid grid-cols-2 gap-4 mb-6">
+<div class="aspect-video bg-obsidian-800 rounded-lg overflow-hidden border border-gold-soft/30">
+<img class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCtG7GzE6yE2OztOYvTyILzbYZvBohCm9zsqqD6evZMpse1SmAfo4cGQ4ygzMnyxlrTxt7gXP1OEzdCEf_pSExgwNvIAaICFWR7l75Vjrgrmieoh14JsGg14ftvIGfsNQGn6wkeyW1Kk5vVxt90VKRvxWXakdXproCxZzY3vMxhyEET5wPoXjJcq_LkZDolZvHV1anHlyZWukkUtYdyow0b0CfnCEUR-BTzOgZ9b1QbbFRFgw0kKMbRteurr8PXOiT-K-cIqDwoIBqQ"/>
+</div>
+<div class="aspect-video bg-obsidian-800 rounded-lg overflow-hidden border border-gold-soft/30">
+<img class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1GOjQDQsdjuknArCoGQcHribn721nc0yB8TOXDzgO43W6reuFBxN1K3PfHnhj4X4JQMDLaL1pgweMWk6_4lWStmEbHQLgzKz5rUH8YGpXokGKWCdxUkt9zy-WrrQGVrEOaoUgrA2njxyOIniLdOR1Dqf27bnj5gM8lsgxf-mCjinGwuJpvCaGoiiJ66_Sd1mDU77KPcfUaDZA3aK1TSIzzGaGPUJMYps768fFJhfSXcBdXIBbLE--rva_zMBITR_KcyErwJE9NK-V"/>
+</div>
+</div>
+<div class="flex justify-center gap-2">
+<span class="px-2 py-1 rounded-full bg-gold-soft/10 text-[10px] text-gold-soft uppercase tracking-tighter border border-gold-soft/20">Gallery</span>
+<span class="px-2 py-1 rounded-full bg-obsidian-700 text-[10px] text-obsidian-500 uppercase tracking-tighter">Physics</span>
+</div>
+</div>
+</div>
+<!-- Quote Node (Right Layout) -->
+<div class="relative pl-12 mb-16 flex justify-end">
+<div class="absolute left-[-24px] top-1 w-4 h-4 rounded-full bg-obsidian-900 border-2 border-gold-soft z-10"></div>
+<div class="w-full md:w-2/3 bg-obsidian-800/50 p-8 rounded-xl border-l-4 border-gold-soft italic">
+<span class="text-gold-soft/50 font-mono text-[10px] mb-4 block">1935年 春</span>
+<p class="text-xl text-white font-serif leading-relaxed">“光不仅是观察的媒介，它本身就是携带信息的信使。”</p>
+<cite class="block mt-4 text-xs text-obsidian-500 not-italic uppercase tracking-widest font-bold">— 沃尔夫冈·海森堡</cite>
+<div class="mt-4 flex gap-2">
+<span class="px-2 py-1 rounded-full bg-obsidian-700 text-[10px] text-gold-soft uppercase tracking-tighter">Quote</span>
+</div>
+</div>
+</div>
+<!-- Link Preview Node (Left Layout) -->
+<div class="relative pl-12 mb-16 flex justify-start">
+<div class="absolute left-[-24px] top-1 w-4 h-4 rounded-full bg-obsidian-900 border-2 border-obsidian-600 z-10"></div>
+<div class="w-full md:w-1/2">
+<span class="text-obsidian-500 font-mono text-xs mb-2 block">1945年 5月</span>
+<h3 class="text-2xl font-semibold mb-4 text-white font-serif">大转折</h3>
+<p class="text-obsidian-500 leading-relaxed text-sm mb-4">战后创新导致了合成发光的发现。这是在实验室环境中首次合成“冷光”效果的确切时刻。</p>
+<a class="flex items-center p-3 bg-obsidian-800 border border-obsidian-700 rounded-lg hover:border-gold-soft/50 transition-all group" href="#">
+<div class="w-10 h-10 bg-obsidian-900 rounded flex items-center justify-center mr-4 text-gold-soft">
+<span class="material-symbols-outlined">link</span>
+</div>
+<div class="flex-1 overflow-hidden">
+<div class="text-xs font-bold text-white truncate">冷光合成白皮书 (1945)</div>
+<div class="text-[10px] text-obsidian-500 truncate">archives.science.org</div>
+</div>
+<span class="material-symbols-outlined text-obsidian-600 group-hover:text-gold-soft text-sm ml-2">open_in_new</span>
+</a>
+</div>
+</div></div>
+<!-- BEGIN: Floating Edit Panel -->
+<section class="absolute bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-4xl bg-obsidian-800/95 backdrop-blur-xl rounded-xl border border-obsidian-600 shadow-2xl p-6 z-20" data-purpose="floating-edit-panel"><!-- Panel Header with Metadata Toggles -->
+<div class="flex items-center justify-between mb-4 border-b border-obsidian-700 pb-4">
+<div class="flex items-center space-x-6">
+<div class="flex flex-col">
+<span class="text-[10px] text-obsidian-500 uppercase font-bold tracking-widest mb-1">编辑节点</span>
+<span class="text-sm text-white font-serif">奠基之光</span>
+</div>
+<div class="h-8 w-[1px] bg-obsidian-700"></div>
+<div class="flex items-center space-x-4">
+<label class="flex items-center cursor-pointer group">
+<input checked="" class="hidden" type="checkbox"/>
+<div class="w-4 h-4 rounded border border-obsidian-600 mr-2 flex items-center justify-center group-hover:border-gold-soft transition-colors">
+<span class="material-symbols-outlined text-[12px] text-gold-soft">check</span>
+</div>
+<span class="text-[10px] text-obsidian-500 uppercase">高亮</span>
+</label>
+<div class="flex items-center space-x-1 bg-obsidian-900 p-1 rounded">
+<button class="px-2 py-1 text-[10px] text-obsidian-500 hover:text-white">LEFT</button>
+<button class="px-2 py-1 text-[10px] bg-obsidian-700 text-gold-soft rounded">CENTER</button>
+<button class="px-2 py-1 text-[10px] text-obsidian-500 hover:text-white">RIGHT</button>
+</div>
+</div>
+</div>
+<div class="flex space-x-4">
+<div class="flex flex-col items-end">
+<span class="text-[9px] text-obsidian-600 uppercase mb-1">日期覆盖</span>
+<input class="bg-transparent border-b border-obsidian-700 focus:border-gold-soft transition-colors text-xs text-gold-soft outline-none text-right w-32" type="text" value="1920年 10月 · 关键节点"/>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-12 gap-6">
+<!-- Markdown Editor -->
+<div class="col-span-7">
+<textarea class="w-full h-40 bg-transparent border-none focus:ring-0 text-sm text-obsidian-400 font-mono placeholder-obsidian-600 resize-none p-0 custom-scrollbar" placeholder="使用 Markdown 编辑内容...">## 奠基之光
+
+最初的概念框架是在苏黎世的一个小工作室里起草的。这段时期标志着从传统光学向量子可视化方法的转变。</textarea>
+</div>
+<!-- Media Manager -->
+<div class="col-span-5 flex flex-col space-y-3">
+<span class="text-[10px] text-obsidian-500 uppercase font-bold tracking-tighter flex items-center">
+<span class="material-symbols-outlined text-xs mr-1">perm_media</span> 媒体管理器 (2/4)
+    </span>
+<div class="grid grid-cols-3 gap-2">
+<!-- Asset 1 -->
+<div class="aspect-square bg-obsidian-900 rounded border border-obsidian-700 relative group overflow-hidden">
+<img class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCtG7GzE6yE2OztOYvTyILzbYZvBohCm9zsqqD6evZMpse1SmAfo4cGQ4ygzMnyxlrTxt7gXP1OEzdCEf_pSExgwNvIAaICFWR7l75Vjrgrmieoh14JsGg14ftvIGfsNQGn6wkeyW1Kk5vVxt90VKRvxWXakdXproCxZzY3vMxhyEET5wPoXjJcq_LkZDolZvHV1anHlyZWukkUtYdyow0b0CfnCEUR-BTzOgZ9b1QbbFRFgw0kKMbRteurr8PXOiT-K-cIqDwoIBqQ"/>
+<button class="absolute top-1 right-1 bg-black/50 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100"><span class="material-symbols-outlined text-[10px]">close</span></button>
+</div>
+<!-- Asset 2 -->
+<div class="aspect-square bg-obsidian-900 rounded border border-obsidian-700 relative group overflow-hidden">
+<img class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1GOjQDQsdjuknArCoGQcHribn721nc0yB8TOXDzgO43W6reuFBxN1K3PfHnhj4X4JQMDLaL1pgweMWk6_4lWStmEbHQLgzKz5rUH8YGpXokGKWCdxUkt9zy-WrrQGVrEOaoUgrA2njxyOIniLdOR1Dqf27bnj5gM8lsgxf-mCjinGwuJpvCaGoiiJ66_Sd1mDU77KPcfUaDZA3aK1TSIzzGaGPUJMYps768fFJhfSXcBdXIBbLE--rva_zMBITR_KcyErwJE9NK-V"/>
+<button class="absolute top-1 right-1 bg-black/50 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100"><span class="material-symbols-outlined text-[10px]">close</span></button>
+</div>
+<!-- Upload Placeholder -->
+<button class="aspect-square border border-dashed border-obsidian-700 rounded flex flex-col items-center justify-center hover:border-gold-soft hover:bg-gold-soft/5 transition-all text-obsidian-600 hover:text-gold-soft">
+<span class="material-symbols-outlined text-lg mb-1">add_photo_alternate</span>
+<span class="text-[8px] uppercase font-bold">上传</span>
+</button>
+</div>
+<div class="pt-2 border-t border-obsidian-700">
+<div class="flex items-center justify-between text-obsidian-600">
+<span class="text-[9px] uppercase font-bold">外部链接 (1)</span>
+<button class="text-[9px] text-gold-soft hover:underline">+ 添加链接</button>
+</div>
+<div class="mt-1 text-[10px] text-obsidian-400 truncate flex items-center">
+<span class="material-symbols-outlined text-xs mr-1">link</span> archives.science.org/paper-1945
+        </div>
+</div>
+</div>
+</div>
+<!-- Panel Footer -->
+<div class="mt-6 pt-4 border-t border-obsidian-700 flex justify-between items-center">
+<div class="flex items-center space-x-2">
+<span class="text-[10px] text-obsidian-600 uppercase">节点类型:</span>
+<select class="bg-obsidian-900 border-none text-[10px] text-gold-soft focus:ring-0 rounded py-1 px-2">
+<option>Gallery (网格)</option>
+<option>Quote (引用)</option>
+<option>Video (视频)</option>
+<option>Standard (标准)</option>
+</select>
+</div>
+<div class="flex space-x-3">
+<button class="text-xs text-obsidian-500 hover:text-white px-4 py-2 transition-colors">放弃</button>
+<button class="text-xs bg-gold-soft hover:bg-gold-muted text-obsidian-900 font-bold px-6 py-2 rounded shadow-lg shadow-gold-soft/20 transition-all uppercase tracking-widest">更新节点</button>
+</div>
+</div></section>
+<!-- END: Floating Edit Panel -->
+</section>
+<!-- END: Right Content Area -->
+</main>
+<!-- END: Main Interface Wrapper -->
+</body></html>

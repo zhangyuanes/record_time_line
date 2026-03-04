@@ -1,0 +1,15 @@
+{
+  "id": "project_c381d8178f",
+  "name": "Step4 Node API Demo",
+  "slug": "step4-node-api-demo",
+  "title": "Step4 Node API Demo",
+  "description": "",
+  "createdAt": "2026-03-04T13:09:23.576Z",
+  "updatedAt": "2026-03-04T13:09:23.790Z",
+  "themeConfig": {
+    "themeId": "minimal-list",
+    "motionLevel": "medium"
+  },
+  "storagePath": "/Users/zhangyuan/code/record_time_line/projects/step4-node-api-demo",
+  "nodeCount": 2
+}

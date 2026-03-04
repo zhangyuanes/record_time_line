@@ -1,0 +1,15 @@
+{
+  "id": "project_f477bb99b8",
+  "name": "Step5 Asset Demo",
+  "slug": "step5-asset-demo",
+  "title": "Step5 Asset Demo",
+  "description": "",
+  "createdAt": "2026-03-04T13:31:51.947Z",
+  "updatedAt": "2026-03-04T13:31:52.210Z",
+  "themeConfig": {
+    "themeId": "minimal-list",
+    "motionLevel": "medium"
+  },
+  "storagePath": "/Users/zhangyuan/code/record_time_line/projects/step5-asset-demo",
+  "nodeCount": 0
+}

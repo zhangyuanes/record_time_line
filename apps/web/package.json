@@ -1,0 +1,10 @@
+{
+  "name": "@chronos/web",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Web app for Chronos Canvas",
+  "type": "commonjs",
+  "scripts": {
+    "dev": "node src/dev-server.js"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "chronos-canvas-workspace",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Local-first timeline authoring workspace",
+  "workspaces": [
+    "apps/web",
+    "apps/local-server"
+  ],
+  "scripts": {
+    "dev:web": "npm run dev -w apps/web",
+    "dev:server": "npm run dev -w apps/local-server",
+    "dev": "echo \"Run npm run dev:server and npm run dev:web in two terminals\"",
+    "check:ports": "node scripts/check-ports.js"
+  }
+}

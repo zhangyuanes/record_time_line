@@ -1,0 +1,1143 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chronos Canvas</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0b0f14;
+        --panel: #121821;
+        --panel-2: #0f141b;
+        --line: #273241;
+        --text: #e6edf3;
+        --muted: #94a3b8;
+        --accent: #d4af37;
+        --brand: #ec5b13;
+        --ok: #2ea043;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      .app { min-height: 100vh; display: flex; flex-direction: column; }
+      .topbar {
+        position: sticky; top: 0; z-index: 20;
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 12px 18px; border-bottom: 1px solid var(--line);
+        background: rgba(11, 15, 20, 0.95); backdrop-filter: blur(6px);
+      }
+      .brand { font-weight: 700; letter-spacing: .02em; }
+      .brand span { color: var(--accent); }
+      .nav { display: flex; gap: 8px; flex-wrap: wrap; }
+      .nav button {
+        border: 1px solid var(--line); background: var(--panel);
+        color: var(--text); border-radius: 8px; padding: 8px 12px; cursor: pointer;
+      }
+      .nav button.active { border-color: var(--accent); color: var(--accent); }
+      .wrap { max-width: 1280px; width: 100%; margin: 0 auto; padding: 16px; }
+      .card {
+        background: var(--panel); border: 1px solid var(--line);
+        border-radius: 10px; padding: 12px;
+      }
+      .grid { display: grid; gap: 12px; }
+      .g2 { grid-template-columns: 1fr 1fr; }
+      .g3 { grid-template-columns: 1fr 1fr 1fr; }
+      .col { display: flex; flex-direction: column; gap: 8px; }
+      input, select, textarea, button {
+        background: var(--panel-2); color: var(--text);
+        border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px;
+        font: inherit;
+      }
+      textarea { min-height: 90px; }
+      button { cursor: pointer; }
+      button:hover { border-color: var(--accent); }
+      .muted { color: var(--muted); font-size: 12px; }
+      .list { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+      .item { padding: 10px; border-top: 1px solid var(--line); cursor: pointer; }
+      .item:first-child { border-top: none; }
+      .item:hover { background: #131b26; }
+      .item.active { background: #192231; border-left: 3px solid var(--accent); padding-left: 7px; }
+      .mono {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        white-space: pre-wrap; word-break: break-word; line-height: 1.4;
+        background: #0b1118; border: 1px solid var(--line); border-radius: 8px;
+        padding: 10px; min-height: 80px; max-height: 320px; overflow: auto;
+      }
+      .timeline {
+        position: relative; padding-left: 28px;
+      }
+      .timeline:before {
+        content: ""; position: absolute; left: 10px; top: 0; bottom: 0;
+        width: 2px; background: linear-gradient(var(--accent), #3b4758);
+      }
+      .node {
+        position: relative; margin-bottom: 10px; background: #121a24;
+        border: 1px solid var(--line); border-radius: 8px; padding: 10px;
+      }
+      .node:before {
+        content: ""; position: absolute; left: -23px; top: 14px;
+        width: 10px; height: 10px; border-radius: 999px; background: var(--accent);
+      }
+      .row { display: flex; gap: 8px; }
+      .row > * { flex: 1; }
+      .debug-box { margin-top: 12px; border-top: 1px dashed var(--line); padding-top: 12px; }
+      .ok { color: var(--ok); }
+      @media (max-width: 980px) {
+        .g2, .g3 { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <div class="brand">Chronos <span>Canvas</span></div>
+        <nav class="nav" id="top-nav">
+          <button data-route="dash">Dash 页面</button>
+          <button data-route="editor">编辑页面</button>
+          <button data-route="viewer">预览与导出页面</button>
+          <button data-route="export">导出管理页</button>
+        </nav>
+      </header>
+      <main class="wrap">
+        <div id="page-root"></div>
+
+        <section class="card debug-box">
+          <div class="row">
+            <strong>调试板块（保留，严格旧版布局）</strong>
+            <span id="debug-status" class="muted"></span>
+          </div>
+
+          <div class="grid g3" style="margin-top:8px;">
+            <section class="card col">
+              <div class="muted">Step 1</div>
+              <strong>初始化与联通检查</strong>
+              <div class="row">
+                <button id="btn-load-config">读取配置</button>
+                <button id="btn-step1-check">执行检查</button>
+              </div>
+              <div id="step1-status" class="muted"></div>
+              <div id="step1-log" class="mono"></div>
+            </section>
+
+            <section class="card col">
+              <div class="muted">Step 2</div>
+              <strong>模型校验与迁移验证</strong>
+              <div class="row">
+                <button id="btn-fill-valid">填充合法示例</button>
+                <button id="btn-fill-invalid">填充非法示例</button>
+              </div>
+              <textarea id="step2-payload" rows="8"></textarea>
+              <button id="btn-step2-validate">执行校验</button>
+              <div id="step2-log" class="mono"></div>
+            </section>
+
+            <section class="card col">
+              <div class="muted">Step 3</div>
+              <strong>创建项目</strong>
+              <label class="muted">name</label>
+              <input id="create-name" placeholder="例如：我的时间线项目" />
+              <label class="muted">slug (可选)</label>
+              <input id="create-slug" placeholder="例如：my-first-project" />
+              <button id="btn-create-project">创建项目</button>
+              <div id="create-log" class="mono"></div>
+            </section>
+          </div>
+
+          <div class="grid g2" style="margin-top:8px;">
+            <section class="card col">
+              <div class="muted">Step 3</div>
+              <strong>项目列表 / 详情</strong>
+              <div class="row">
+                <button id="btn-load-projects">刷新项目列表</button>
+                <button id="btn-load-selected">读取选中项目详情</button>
+              </div>
+              <div id="projects-list" class="list"></div>
+              <div id="project-detail" class="mono"></div>
+            </section>
+            <section class="card col">
+              <div class="muted">Step 3</div>
+              <strong>更新项目元数据</strong>
+              <label class="muted">projectId</label>
+              <input id="patch-project-id" placeholder="从左侧点选可自动填充" />
+              <label class="muted">title</label>
+              <input id="patch-title" />
+              <label class="muted">description</label>
+              <input id="patch-description" />
+              <label class="muted">themeId / motionLevel</label>
+              <div class="row">
+                <select id="patch-theme-id">
+                  <option value="">不修改 themeId</option>
+                  <option value="minimal-list">minimal-list</option>
+                  <option value="snake-path">snake-path</option>
+                  <option value="horizontal-film">horizontal-film</option>
+                </select>
+                <select id="patch-motion-level">
+                  <option value="">不修改 motionLevel</option>
+                  <option value="low">low</option>
+                  <option value="medium">medium</option>
+                  <option value="high">high</option>
+                </select>
+              </div>
+              <button id="btn-patch-project">更新项目</button>
+              <div id="patch-log" class="mono"></div>
+            </section>
+          </div>
+
+          <div class="grid g2" style="margin-top:8px;">
+            <section class="card col">
+              <div class="muted">Step 4</div>
+              <strong>节点管理（创建 / 更新 / 删除）</strong>
+              <input id="node-project-id" placeholder="projectId（可空，默认当前选中）" />
+              <div class="row">
+                <input id="node-title" placeholder="节点标题（必填）" />
+                <input id="node-timestamp" type="datetime-local" />
+              </div>
+              <div class="row">
+                <select id="node-type">
+                  <option value="standard">standard</option><option value="gallery">gallery</option>
+                  <option value="quote">quote</option><option value="video">video</option>
+                </select>
+                <select id="node-layout">
+                  <option value="left">left</option><option value="right">right</option><option value="center">center</option>
+                </select>
+              </div>
+              <div class="row">
+                <input id="node-link-url" placeholder="link.url（可选）" />
+                <input id="node-link-text" placeholder="link.text（可选）" />
+              </div>
+              <input id="node-media-input" placeholder="media 资产引用，逗号分隔（assetId,assetId）" />
+              <textarea id="node-body-markdown" rows="4" placeholder="body（Markdown）"></textarea>
+              <div class="row">
+                <input id="node-id-for-update" placeholder="nodeId（更新/删除）" />
+                <input id="node-title-for-update" placeholder="更新标题（可选）" />
+              </div>
+              <textarea id="node-body-markdown-for-update" rows="3" placeholder="更新 body（可选）"></textarea>
+              <div class="row">
+                <button id="btn-node-create">新增节点</button>
+                <button id="btn-node-update">更新节点</button>
+                <button id="btn-node-delete">删除节点</button>
+              </div>
+              <div id="step4-log" class="mono"></div>
+            </section>
+
+            <section class="card col">
+              <div class="muted">Step 4</div>
+              <strong>节点列表与重排</strong>
+              <div class="row">
+                <button id="btn-node-refresh">刷新当前项目节点</button>
+                <button id="btn-node-fill-order">按当前列表填充排序输入</button>
+              </div>
+              <div id="nodes-list" class="list"></div>
+              <input id="node-order-input" placeholder="nodeId1,nodeId2,nodeId3" />
+              <button id="btn-node-reorder">执行重排</button>
+              <div id="node-order-log" class="mono"></div>
+            </section>
+          </div>
+
+          <div class="grid g2" style="margin-top:8px;">
+            <section class="card col">
+              <div class="muted">Step 5</div>
+              <strong>媒体上传（Assets）</strong>
+              <input id="asset-project-id" placeholder="projectId（可空，默认当前选中）" />
+              <div class="row">
+                <select id="asset-kind"><option>image</option><option>video</option><option>audio</option></select>
+                <input id="asset-file" type="file" />
+              </div>
+              <div class="row">
+                <button id="btn-asset-upload">上传资源</button>
+                <button id="btn-asset-list">刷新资源列表</button>
+              </div>
+              <div id="asset-log" class="mono"></div>
+            </section>
+            <section class="card col">
+              <div class="muted">Step 5</div>
+              <strong>资源列表与删除</strong>
+              <div id="assets-list" class="list"></div>
+              <div class="row">
+                <input id="asset-id-for-delete" placeholder="assetId（点击列表自动填充）" />
+                <label class="muted" style="display:flex;align-items:center;gap:8px;">
+                  <input id="asset-force-delete" type="checkbox" style="width:auto;" />force
+                </label>
+              </div>
+              <div class="row">
+                <button id="btn-asset-delete">删除资源</button>
+                <button id="btn-asset-fill-media">填充选中资源到节点 media</button>
+              </div>
+              <div id="asset-delete-log" class="mono"></div>
+            </section>
+          </div>
+
+          <section class="card col" style="margin-top:8px;">
+            <div class="muted">原始请求调试</div>
+            <div class="grid g3">
+              <div class="col">
+                <label class="muted">API_BASE_URL</label>
+                <input id="dbg-api-base" />
+              </div>
+              <div class="col">
+                <label class="muted">method</label>
+                <select id="dbg-method">
+                  <option>GET</option><option>POST</option><option>PATCH</option><option>DELETE</option>
+                </select>
+              </div>
+              <div class="col">
+                <label class="muted">path</label>
+                <input id="dbg-path" placeholder="/api/health" />
+              </div>
+            </div>
+            <textarea id="dbg-body" placeholder='{"name":"Demo"}'></textarea>
+            <div class="row">
+              <button id="dbg-send">发送请求</button>
+              <button id="dbg-health">健康检查</button>
+              <button id="dbg-projects">读取项目列表</button>
+            </div>
+            <div id="dbg-output" class="mono"></div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      const state = {
+        route: "dash",
+        apiBaseUrl: "http://127.0.0.1:8787",
+        projects: [],
+        selectedProjectId: "",
+        selectedNodeId: "",
+        detail: null,
+        currentAssets: [],
+        selectedNodeAssetIds: []
+      };
+
+      const $ = (id) => document.getElementById(id);
+      const pretty = (v) => JSON.stringify(v, null, 2);
+      const esc = (s) => String(s || "").replace(/[&<>]/g, (m) => ({ "&":"&amp;","<":"&lt;",">":"&gt;" }[m]));
+
+      async function api(path, options) {
+        const res = await fetch(state.apiBaseUrl + path, options);
+        const text = await res.text();
+        let payload;
+        try { payload = JSON.parse(text); } catch (_) { payload = { raw: text }; }
+        return { ok: res.ok, status: res.status, payload };
+      }
+
+      async function loadConfig() {
+        const res = await fetch("/api/config");
+        const cfg = await res.json();
+        if (cfg.apiBaseUrl) state.apiBaseUrl = cfg.apiBaseUrl;
+        $("dbg-api-base").value = state.apiBaseUrl;
+        $("debug-status").textContent = "已加载配置";
+      }
+
+      async function loadProjects() {
+        const result = await api("/api/projects");
+        if (result.ok) {
+          state.projects = result.payload.projects || [];
+          if (!state.selectedProjectId && state.projects[0]) state.selectedProjectId = state.projects[0].id;
+        }
+        return result;
+      }
+
+      async function loadProjectDetail(projectId) {
+        if (!projectId) return null;
+        const result = await api("/api/projects/" + encodeURIComponent(projectId));
+        if (result.ok) state.detail = result.payload;
+        return result;
+      }
+
+      function setRoute(route) {
+        state.route = route;
+        history.replaceState(null, "", "#" + route);
+        render();
+      }
+
+      function bindTopNav() {
+        document.querySelectorAll("#top-nav button").forEach((btn) => {
+          btn.classList.toggle("active", btn.dataset.route === state.route);
+          btn.onclick = () => setRoute(btn.dataset.route);
+        });
+      }
+
+      function renderDashPage() {
+        const cards = state.projects.map((p) => `
+          <div class="item ${p.id===state.selectedProjectId?"active":""}" data-pid="${esc(p.id)}">
+            <div><strong>${esc(p.title || p.name)}</strong></div>
+            <div class="muted">${esc(p.slug)} · 节点 ${p.nodeCount ?? 0}</div>
+          </div>
+        `).join("");
+        return `
+          <section class="card">
+            <h2>Dash 页面（项目总览）</h2>
+            <p class="muted">对应原型的项目网格/项目入口，当前先用可操作列表实现。</p>
+            <div class="row">
+              <input id="dash-new-name" placeholder="新项目名称" />
+              <button id="dash-create">新建项目</button>
+              <button id="dash-refresh">刷新列表</button>
+            </div>
+            <div class="list" style="margin-top:8px;">${cards || '<div class="item muted">暂无项目</div>'}</div>
+          </section>
+        `;
+      }
+
+      function renderEditorPage() {
+        const nodes = state.detail?.timeline?.nodes || [];
+        const nodeItems = nodes.map((n) => `
+          <div class="item ${n.id===state.selectedNodeId?"active":""}" data-nid="${esc(n.id)}">
+            <div>${esc(n.title)}</div>
+            <div class="muted">${esc(n.timestamp)} · ${esc(n.id)}</div>
+          </div>
+        `).join("");
+        const projectId = state.selectedProjectId || "";
+        return `
+          <div class="grid g3">
+            <section class="card col">
+              <h2>编辑页面 - 节点列表</h2>
+              <div class="row">
+                <button id="ed-load">加载项目</button>
+                <button id="ed-refresh">刷新</button>
+              </div>
+              <input id="ed-project-id" value="${esc(projectId)}" placeholder="projectId" />
+              <div class="list">${nodeItems || '<div class="item muted">暂无节点</div>'}</div>
+            </section>
+
+            <section class="card col">
+              <h2>编辑页面 - 节点编辑器</h2>
+              <input id="ed-node-id" placeholder="nodeId（更新/删除）" value="${esc(state.selectedNodeId || "")}" />
+              <div class="row">
+                <input id="ed-title" placeholder="title" />
+                <input id="ed-ts" type="datetime-local" />
+              </div>
+              <div class="row">
+                <select id="ed-type"><option>standard</option><option>gallery</option><option>quote</option><option>video</option></select>
+                <select id="ed-layout"><option>left</option><option>right</option><option>center</option></select>
+              </div>
+              <textarea id="ed-body" placeholder="Markdown 内容"></textarea>
+              <div class="row">
+                <input id="ed-link-url" placeholder="link.url" />
+                <input id="ed-link-text" placeholder="link.text" />
+              </div>
+              <div class="row">
+                <input id="ed-media" placeholder="assetId,assetId..." />
+                <label class="muted" style="display:flex;align-items:center;gap:6px;"><input id="ed-highlight" type="checkbox" style="width:auto;" />highlight</label>
+              </div>
+              <div class="row">
+                <button id="ed-create">新增节点</button>
+                <button id="ed-update">更新节点</button>
+                <button id="ed-delete">删除节点</button>
+              </div>
+              <div id="ed-log" class="mono"></div>
+            </section>
+
+            <section class="card col">
+              <h2>编辑页面 - 资产库</h2>
+              <input id="ed-file" type="file" />
+              <div class="row">
+                <select id="ed-kind"><option>image</option><option>video</option><option>audio</option></select>
+                <button id="ed-upload">上传资产</button>
+              </div>
+              <button id="ed-assets">刷新资产列表</button>
+              <div id="ed-assets-list" class="mono"></div>
+            </section>
+          </div>
+        `;
+      }
+
+      function renderViewerPage() {
+        const nodes = state.detail?.timeline?.nodes || [];
+        const html = nodes.map((n) => `
+          <div class="node">
+            <div><strong>${esc(n.title)}</strong></div>
+            <div class="muted">${esc(n.timestamp)} · ${esc(n.type || "standard")} / ${esc(n.layout || "left")}</div>
+            <div>${esc(n.body || "")}</div>
+          </div>
+        `).join("");
+        return `
+          <section class="card">
+            <h2>预览与导出页面（只读）</h2>
+            <p class="muted">对应预览原型；当前展示真实项目时间线内容。</p>
+            <div class="row">
+              <input id="vw-project-id" value="${esc(state.selectedProjectId || "")}" placeholder="projectId" />
+              <button id="vw-load">加载预览</button>
+            </div>
+            <div class="timeline" style="margin-top:10px;">${html || '<div class="muted">暂无节点可预览</div>'}</div>
+          </section>
+        `;
+      }
+
+      function renderExportPage() {
+        return `
+          <section class="card">
+            <h2>导出管理页</h2>
+            <p class="muted">导出接口未实现前，先提供配置面板与占位入口，后续直接接 <code>/api/projects/:id/export</code>。</p>
+            <div class="grid g2">
+              <div class="col">
+                <label class="muted">projectId</label>
+                <input id="ex-project-id" value="${esc(state.selectedProjectId || "")}" />
+                <label class="muted">profile</label>
+                <select id="ex-profile"><option>standard</option><option>compressed</option></select>
+                <label class="muted">includeSource</label>
+                <select id="ex-source"><option value="false">false</option><option value="true">true</option></select>
+                <button id="ex-run">执行导出（占位）</button>
+              </div>
+              <div class="col">
+                <div id="ex-log" class="mono">等待执行...</div>
+              </div>
+            </div>
+          </section>
+        `;
+      }
+
+      function render() {
+        const root = $("page-root");
+        if (state.route === "dash") root.innerHTML = renderDashPage();
+        if (state.route === "editor") root.innerHTML = renderEditorPage();
+        if (state.route === "viewer") root.innerHTML = renderViewerPage();
+        if (state.route === "export") root.innerHTML = renderExportPage();
+        bindTopNav();
+        bindPageEvents();
+      }
+
+      function datetimeLocalToIso(v) {
+        if (!v) return undefined;
+        const d = new Date(v);
+        if (Number.isNaN(d.getTime())) return undefined;
+        return d.toISOString();
+      }
+
+      function parseMediaIds(s) {
+        return String(s || "")
+          .split(",")
+          .map((x) => x.trim())
+          .filter(Boolean)
+          .map((assetId) => ({ assetId }));
+      }
+
+      async function bindPageEvents() {
+        // Dash
+        const dashCreate = $("dash-create");
+        if (dashCreate) {
+          dashCreate.onclick = async () => {
+            const name = $("dash-new-name").value.trim();
+            if (!name) return;
+            const r = await api("/api/projects", {
+              method: "POST", headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ name })
+            });
+            $("dbg-output").textContent = pretty(r);
+            await loadProjects();
+            if (r.ok) state.selectedProjectId = r.payload.project.id;
+            await loadProjectDetail(state.selectedProjectId);
+            render();
+          };
+          $("dash-refresh").onclick = async () => {
+            await loadProjects();
+            render();
+          };
+          document.querySelectorAll("[data-pid]").forEach((el) => {
+            el.onclick = async () => {
+              state.selectedProjectId = el.dataset.pid;
+              await loadProjectDetail(state.selectedProjectId);
+              render();
+            };
+          });
+        }
+
+        // Editor
+        if ($("ed-load")) {
+          $("ed-load").onclick = async () => {
+            state.selectedProjectId = $("ed-project-id").value.trim();
+            await loadProjectDetail(state.selectedProjectId);
+            render();
+          };
+          $("ed-refresh").onclick = async () => {
+            await loadProjectDetail(state.selectedProjectId);
+            render();
+          };
+          document.querySelectorAll("[data-nid]").forEach((el) => {
+            el.onclick = () => { state.selectedNodeId = el.dataset.nid; $("ed-node-id").value = el.dataset.nid; };
+          });
+
+          $("ed-create").onclick = async () => {
+            const pid = $("ed-project-id").value.trim() || state.selectedProjectId;
+            const payload = {
+              node: {
+                title: $("ed-title").value.trim(),
+                timestamp: datetimeLocalToIso($("ed-ts").value) || new Date().toISOString(),
+                type: $("ed-type").value,
+                layout: $("ed-layout").value,
+                body: $("ed-body").value,
+                highlight: $("ed-highlight").checked,
+                media: parseMediaIds($("ed-media").value),
+                link: $("ed-link-url").value.trim() ? { url: $("ed-link-url").value.trim(), text: $("ed-link-text").value.trim() || undefined } : undefined
+              }
+            };
+            const r = await api(`/api/projects/${encodeURIComponent(pid)}/nodes`, {
+              method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload)
+            });
+            $("ed-log").textContent = pretty(r);
+            if (r.ok) { state.selectedProjectId = pid; await loadProjectDetail(pid); render(); }
+          };
+
+          $("ed-update").onclick = async () => {
+            const pid = $("ed-project-id").value.trim() || state.selectedProjectId;
+            const nid = $("ed-node-id").value.trim();
+            if (!pid || !nid) return;
+            const patch = {
+              node: {
+                title: $("ed-title").value.trim() || undefined,
+                timestamp: datetimeLocalToIso($("ed-ts").value) || undefined,
+                type: $("ed-type").value || undefined,
+                layout: $("ed-layout").value || undefined,
+                body: $("ed-body").value || undefined,
+                highlight: $("ed-highlight").checked,
+                media: parseMediaIds($("ed-media").value),
+                link: $("ed-link-url").value.trim() ? { url: $("ed-link-url").value.trim(), text: $("ed-link-text").value.trim() || undefined } : undefined
+              }
+            };
+            const r = await api(`/api/projects/${encodeURIComponent(pid)}/nodes/${encodeURIComponent(nid)}`, {
+              method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(patch)
+            });
+            $("ed-log").textContent = pretty(r);
+            if (r.ok) { await loadProjectDetail(pid); render(); }
+          };
+
+          $("ed-delete").onclick = async () => {
+            const pid = $("ed-project-id").value.trim() || state.selectedProjectId;
+            const nid = $("ed-node-id").value.trim();
+            if (!pid || !nid) return;
+            const r = await api(`/api/projects/${encodeURIComponent(pid)}/nodes/${encodeURIComponent(nid)}`, { method: "DELETE" });
+            $("ed-log").textContent = pretty(r);
+            if (r.ok) { await loadProjectDetail(pid); render(); }
+          };
+
+          $("ed-upload").onclick = async () => {
+            const pid = $("ed-project-id").value.trim() || state.selectedProjectId;
+            const file = $("ed-file").files && $("ed-file").files[0];
+            if (!pid || !file) return;
+            const b64 = await new Promise((resolve, reject) => {
+              const fr = new FileReader();
+              fr.onload = () => {
+                const t = String(fr.result || "");
+                const i = t.indexOf(",");
+                resolve(i >= 0 ? t.slice(i + 1) : "");
+              };
+              fr.onerror = () => reject(new Error("READ_FILE_FAILED"));
+              fr.readAsDataURL(file);
+            });
+            const r = await api(`/api/projects/${encodeURIComponent(pid)}/assets`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ filename: file.name, kind: $("ed-kind").value, contentBase64: b64 })
+            });
+            $("ed-log").textContent = pretty(r);
+            if (r.ok) {
+              const current = $("ed-media").value.trim();
+              $("ed-media").value = current ? current + "," + r.payload.asset.id : r.payload.asset.id;
+            }
+          };
+
+          $("ed-assets").onclick = async () => {
+            const pid = $("ed-project-id").value.trim() || state.selectedProjectId;
+            const r = await api(`/api/projects/${encodeURIComponent(pid)}/assets`);
+            $("ed-assets-list").textContent = pretty(r.payload);
+          };
+        }
+
+        // Viewer
+        if ($("vw-load")) {
+          $("vw-load").onclick = async () => {
+            state.selectedProjectId = $("vw-project-id").value.trim();
+            await loadProjectDetail(state.selectedProjectId);
+            render();
+          };
+        }
+
+        // Export placeholder
+        if ($("ex-run")) {
+          $("ex-run").onclick = async () => {
+            const pid = $("ex-project-id").value.trim();
+            $("ex-log").textContent = pretty({
+              todo: "待实现导出接口",
+              endpoint: `/api/projects/${pid}/export`,
+              options: {
+                profile: $("ex-profile").value,
+                includeSource: $("ex-source").value === "true"
+              }
+            });
+          };
+        }
+      }
+
+      function bindDebugEvents() {
+        const setOut = (x) => { $("dbg-output").textContent = typeof x === "string" ? x : pretty(x); };
+        const setText = (id, text) => { $(id).textContent = typeof text === "string" ? text : pretty(text); };
+        const nowIso = () => new Date().toISOString();
+        const localToIso = (v) => {
+          if (!v) return undefined;
+          const d = new Date(v);
+          return Number.isNaN(d.getTime()) ? undefined : d.toISOString();
+        };
+        const isoToLocal = (iso) => {
+          if (!iso) return "";
+          const d = new Date(iso);
+          if (Number.isNaN(d.getTime())) return "";
+          const pad = (n) => String(n).padStart(2, "0");
+          return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(
+            d.getMinutes()
+          )}`;
+        };
+        const parseMediaIds = (v) =>
+          String(v || "")
+            .split(",")
+            .map((x) => x.trim())
+            .filter(Boolean)
+            .map((assetId) => ({ assetId }));
+        const getPid = () =>
+          $("node-project-id").value.trim() ||
+          $("asset-project-id").value.trim() ||
+          $("patch-project-id").value.trim() ||
+          state.selectedProjectId;
+
+        async function loadConfigForDebug() {
+          const res = await fetch("/api/config");
+          const cfg = await res.json();
+          if (cfg.apiBaseUrl) {
+            state.apiBaseUrl = cfg.apiBaseUrl;
+            $("dbg-api-base").value = cfg.apiBaseUrl;
+          }
+          setText("step1-log", cfg);
+          setText("step1-status", "配置已加载");
+        }
+
+        async function checkStep1() {
+          const [health, bootstrap, version, registry] = await Promise.all([
+            api("/api/health"),
+            api("/api/bootstrap"),
+            api("/api/domain/version"),
+            fetch("/src/features/prototype/prototype-registry.json")
+              .then(async (r) => ({ ok: r.ok, status: r.status, payload: await r.json().catch(() => ({})) }))
+          ]);
+          const allOk = health.ok && bootstrap.ok && version.ok && registry.ok;
+          setText("step1-status", allOk ? "Step1 检查通过" : "Step1 检查存在失败项");
+          setText("step1-log", { health, bootstrap, version, registry });
+        }
+
+        function fillValidPayload() {
+          $("step2-payload").value = pretty({
+            timeline: {
+              version: "0.1.0",
+              meta: {
+                projectId: "project_debug",
+                title: "合法示例",
+                description: "",
+                assets: [],
+                themeConfig: { themeId: "minimal-list", motionLevel: "medium" }
+              },
+              nodes: [
+                {
+                  id: "node_1",
+                  timestamp: nowIso(),
+                  title: "节点A",
+                  body: "hello markdown",
+                  type: "standard",
+                  layout: "left",
+                  highlight: false,
+                  media: [],
+                  createdAt: nowIso(),
+                  updatedAt: nowIso()
+                }
+              ],
+              createdAt: nowIso(),
+              updatedAt: nowIso()
+            }
+          });
+        }
+
+        function fillInvalidPayload() {
+          $("step2-payload").value = pretty({
+            timeline: {
+              meta: { projectId: "p1", title: "", themeConfig: { themeId: "minimal-list" } },
+              nodes: [{ id: "n1", timestamp: "bad", title: "", media: [{ src: "/abs/path.jpg" }] }]
+            }
+          });
+        }
+
+        async function runValidate() {
+          let payload = {};
+          try { payload = JSON.parse($("step2-payload").value || "{}"); } catch (_) {}
+          const r = await api("/api/domain/validate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+          setText("step2-log", { status: r.status, ...r.payload });
+        }
+
+        async function createProjectDbg() {
+          const name = $("create-name").value.trim();
+          const slug = $("create-slug").value.trim();
+          const r = await api("/api/projects", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, slug: slug || undefined })
+          });
+          setText("create-log", { status: r.status, ...r.payload });
+          if (r.ok) {
+            state.selectedProjectId = r.payload.project.id;
+            $("patch-project-id").value = r.payload.project.id;
+            $("node-project-id").value = r.payload.project.id;
+            $("asset-project-id").value = r.payload.project.id;
+            await loadProjectsDbg();
+            await refreshNodesDbg();
+            await listAssetsDbg();
+          }
+        }
+
+        async function loadProjectsDbg() {
+          const r = await api("/api/projects");
+          if (!r.ok) {
+            $("projects-list").innerHTML = '<div class="item">加载失败</div>';
+            setText("project-detail", r.payload);
+            return;
+          }
+          const projects = r.payload.projects || [];
+          const html = projects.length
+            ? projects
+                .map(
+                  (p) =>
+                    `<div class="item ${p.id === state.selectedProjectId ? "active" : ""}" data-dbg-pid="${esc(
+                      p.id
+                    )}">${esc(p.title || p.name)} (${esc(p.slug)})</div>`
+                )
+                .join("")
+            : '<div class="item muted">当前没有项目</div>';
+          $("projects-list").innerHTML = html;
+          setText("project-detail", { count: projects.length, selectedProjectId: state.selectedProjectId });
+          document.querySelectorAll("[data-dbg-pid]").forEach((el) => {
+            el.onclick = async () => {
+              state.selectedProjectId = el.dataset.dbgPid;
+              $("patch-project-id").value = state.selectedProjectId;
+              $("node-project-id").value = state.selectedProjectId;
+              $("asset-project-id").value = state.selectedProjectId;
+              await loadSelectedProjectDbg();
+              await refreshNodesDbg();
+              await listAssetsDbg();
+              await loadProjectsDbg();
+            };
+          });
+        }
+
+        async function loadSelectedProjectDbg() {
+          const pid = state.selectedProjectId || $("patch-project-id").value.trim();
+          if (!pid) return setText("project-detail", "请先选择或输入 projectId");
+          const r = await api(`/api/projects/${encodeURIComponent(pid)}`);
+          setText("project-detail", { status: r.status, ...r.payload });
+          if (r.ok) state.detail = r.payload;
+        }
+
+        async function patchProjectDbg() {
+          const pid = $("patch-project-id").value.trim();
+          if (!pid) return setText("patch-log", "projectId 不能为空");
+          const body = {
+            title: $("patch-title").value || undefined,
+            description: $("patch-description").value || undefined,
+            themeConfig: {
+              themeId: $("patch-theme-id").value || undefined,
+              motionLevel: $("patch-motion-level").value || undefined
+            }
+          };
+          if (!body.themeConfig.themeId && !body.themeConfig.motionLevel) delete body.themeConfig;
+          const r = await api(`/api/projects/${encodeURIComponent(pid)}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body)
+          });
+          setText("patch-log", { status: r.status, ...r.payload });
+          if (r.ok) {
+            state.selectedProjectId = pid;
+            await loadProjectsDbg();
+            await loadSelectedProjectDbg();
+          }
+        }
+
+        function renderNodesListDbg(nodes) {
+          const html = nodes.length
+            ? nodes
+                .map(
+                  (n) =>
+                    `<div class="item ${n.id === state.selectedNodeId ? "active" : ""}" data-dbg-nid="${esc(
+                      n.id
+                    )}">${esc(n.title)} [${esc(n.id)}]</div>`
+                )
+                .join("")
+            : '<div class="item muted">当前项目暂无节点</div>';
+          $("nodes-list").innerHTML = html;
+          document.querySelectorAll("[data-dbg-nid]").forEach((el) => {
+            el.onclick = () => {
+              const node = nodes.find((n) => n.id === el.dataset.dbgNid);
+              state.selectedNodeId = el.dataset.dbgNid;
+              state.selectedNodeAssetIds = Array.isArray(node?.media)
+                ? node.media.map((m) => m.assetId).filter(Boolean)
+                : [];
+
+              // 回写到 Step4 创建区，方便查看与二次编辑
+              $("node-title").value = node?.title || "";
+              $("node-timestamp").value = isoToLocal(node?.timestamp);
+              $("node-type").value = node?.type || "standard";
+              $("node-layout").value = node?.layout || "left";
+              $("node-link-url").value = node?.link?.url || "";
+              $("node-link-text").value = node?.link?.text || "";
+              $("node-media-input").value = Array.isArray(node?.media)
+                ? node.media.map((m) => m.assetId || "").filter(Boolean).join(",")
+                : "";
+              $("node-body-markdown").value = node?.body || "";
+
+              // 回写到 Step4 更新区
+              $("node-id-for-update").value = el.dataset.dbgNid;
+              $("node-title-for-update").value = node?.title || "";
+              $("node-body-markdown-for-update").value = node?.body || "";
+
+              // 重新渲染高亮选中项
+              renderNodesListDbg(nodes);
+              renderAssetsListDbg(state.currentAssets);
+            };
+          });
+        }
+
+        async function refreshNodesDbg() {
+          const pid = getPid();
+          if (!pid) return setText("node-order-log", "请先选择项目");
+          const r = await api(`/api/projects/${encodeURIComponent(pid)}`);
+          if (!r.ok) return setText("node-order-log", { status: r.status, ...r.payload });
+          const nodes = r.payload.timeline?.nodes || [];
+          renderNodesListDbg(nodes);
+          setText("node-order-log", { projectId: pid, nodeCount: nodes.length });
+        }
+
+        async function createNodeDbg() {
+          const pid = getPid();
+          if (!pid) return setText("step4-log", "请先选择项目");
+          const title = $("node-title").value.trim();
+          if (!title) return setText("step4-log", "节点标题不能为空");
+          const body = {
+            node: {
+              title,
+              timestamp: localToIso($("node-timestamp").value) || nowIso(),
+              type: $("node-type").value,
+              layout: $("node-layout").value,
+              body: $("node-body-markdown").value || undefined,
+              media: parseMediaIds($("node-media-input").value),
+              link: $("node-link-url").value.trim()
+                ? { url: $("node-link-url").value.trim(), text: $("node-link-text").value.trim() || undefined }
+                : undefined
+            }
+          };
+          const r = await api(`/api/projects/${encodeURIComponent(pid)}/nodes`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body)
+          });
+          setText("step4-log", { status: r.status, ...r.payload });
+          if (r.ok) await refreshNodesDbg();
+        }
+
+        async function updateNodeDbg() {
+          const pid = getPid();
+          const nid = $("node-id-for-update").value.trim();
+          if (!pid || !nid) return setText("step4-log", "请先指定 projectId 和 nodeId");
+          const patch = {
+            node: {
+              title: $("node-title-for-update").value.trim() || undefined,
+              body: $("node-body-markdown-for-update").value || undefined
+            }
+          };
+          const r = await api(`/api/projects/${encodeURIComponent(pid)}/nodes/${encodeURIComponent(nid)}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(patch)
+          });
+          setText("step4-log", { status: r.status, ...r.payload });
+          if (r.ok) await refreshNodesDbg();
+        }
+
+        async function deleteNodeDbg() {
+          const pid = getPid();
+          const nid = $("node-id-for-update").value.trim();
+          if (!pid || !nid) return setText("step4-log", "请先指定 projectId 和 nodeId");
+          const r = await api(`/api/projects/${encodeURIComponent(pid)}/nodes/${encodeURIComponent(nid)}`, {
+            method: "DELETE"
+          });
+          setText("step4-log", { status: r.status, ...r.payload });
+          if (r.ok) await refreshNodesDbg();
+        }
+
+        function fillNodeOrderDbg() {
+          const items = Array.from(document.querySelectorAll("[data-dbg-nid]")).map((x) => x.dataset.dbgNid);
+          $("node-order-input").value = items.join(",");
+        }
+
+        async function reorderNodesDbg() {
+          const pid = getPid();
+          if (!pid) return setText("node-order-log", "请先选择项目");
+          const ids = $("node-order-input")
+            .value.split(",")
+            .map((s) => s.trim())
+            .filter(Boolean);
+          const r = await api(`/api/projects/${encodeURIComponent(pid)}/nodes/reorder`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ orderedNodeIds: ids })
+          });
+          setText("node-order-log", { status: r.status, ...r.payload });
+          if (r.ok) {
+            renderNodesListDbg(r.payload.nodes || []);
+          }
+        }
+
+        function renderAssetsListDbg(assets) {
+          const refSet = new Set(state.selectedNodeAssetIds || []);
+          const html = assets.length
+            ? assets
+                .map(
+                  (a) =>
+                    `<div class="item ${refSet.has(a.id) ? "active" : ""}" data-dbg-aid="${esc(a.id)}">${esc(a.fileName || a.src)} [${esc(
+                      a.id
+                    )}] ${a.inUse ? "(in-use)" : ""}</div>`
+                )
+                .join("")
+            : '<div class="item muted">当前项目暂无资源</div>';
+          $("assets-list").innerHTML = html;
+          document.querySelectorAll("[data-dbg-aid]").forEach((el) => {
+            el.onclick = () => {
+              const asset = assets.find((a) => a.id === el.dataset.dbgAid);
+              $("asset-id-for-delete").value = el.dataset.dbgAid;
+              setText("asset-delete-log", asset || { assetId: el.dataset.dbgAid });
+            };
+          });
+        }
+
+        async function listAssetsDbg() {
+          const pid = getPid();
+          if (!pid) return setText("asset-log", "请先选择项目");
+          const r = await api(`/api/projects/${encodeURIComponent(pid)}/assets`);
+          if (!r.ok) return setText("asset-log", { status: r.status, ...r.payload });
+          state.currentAssets = r.payload.assets || [];
+          renderAssetsListDbg(state.currentAssets);
+          setText("asset-log", {
+            projectId: pid,
+            count: state.currentAssets.length,
+            highlightedByNode: state.selectedNodeAssetIds
+          });
+        }
+
+        async function uploadAssetDbg() {
+          const pid = getPid();
+          if (!pid) return setText("asset-log", "请先选择项目");
+          const file = $("asset-file").files && $("asset-file").files[0];
+          if (!file) return setText("asset-log", "请先选择文件");
+          const contentBase64 = await new Promise((resolve, reject) => {
+            const fr = new FileReader();
+            fr.onload = () => {
+              const t = String(fr.result || "");
+              const i = t.indexOf(",");
+              resolve(i >= 0 ? t.slice(i + 1) : "");
+            };
+            fr.onerror = () => reject(new Error("READ_FILE_FAILED"));
+            fr.readAsDataURL(file);
+          });
+          const r = await api(`/api/projects/${encodeURIComponent(pid)}/assets`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ filename: file.name, kind: $("asset-kind").value, contentBase64 })
+          });
+          setText("asset-log", { status: r.status, ...r.payload });
+          if (r.ok) {
+            $("asset-id-for-delete").value = r.payload.asset.id;
+            await listAssetsDbg();
+          }
+        }
+
+        async function deleteAssetDbg() {
+          const pid = getPid();
+          const aid = $("asset-id-for-delete").value.trim();
+          if (!pid || !aid) return setText("asset-delete-log", "请先指定 projectId 与 assetId");
+          const force = $("asset-force-delete").checked;
+          const r = await api(
+            `/api/projects/${encodeURIComponent(pid)}/assets/${encodeURIComponent(aid)}${force ? "?force=true" : ""}`,
+            { method: "DELETE" }
+          );
+          setText("asset-delete-log", { status: r.status, ...r.payload });
+          if (r.ok) await listAssetsDbg();
+        }
+
+        function fillAssetToMediaInputDbg() {
+          const aid = $("asset-id-for-delete").value.trim();
+          if (!aid) return;
+          const cur = $("node-media-input").value.trim();
+          $("node-media-input").value = cur ? `${cur},${aid}` : aid;
+        }
+
+        $("btn-load-config").onclick = loadConfigForDebug;
+        $("btn-step1-check").onclick = checkStep1;
+        $("btn-fill-valid").onclick = fillValidPayload;
+        $("btn-fill-invalid").onclick = fillInvalidPayload;
+        $("btn-step2-validate").onclick = runValidate;
+        $("btn-create-project").onclick = createProjectDbg;
+        $("btn-load-projects").onclick = loadProjectsDbg;
+        $("btn-load-selected").onclick = loadSelectedProjectDbg;
+        $("btn-patch-project").onclick = patchProjectDbg;
+        $("btn-node-create").onclick = createNodeDbg;
+        $("btn-node-update").onclick = updateNodeDbg;
+        $("btn-node-delete").onclick = deleteNodeDbg;
+        $("btn-node-refresh").onclick = refreshNodesDbg;
+        $("btn-node-fill-order").onclick = fillNodeOrderDbg;
+        $("btn-node-reorder").onclick = reorderNodesDbg;
+        $("btn-asset-upload").onclick = uploadAssetDbg;
+        $("btn-asset-list").onclick = listAssetsDbg;
+        $("btn-asset-delete").onclick = deleteAssetDbg;
+        $("btn-asset-fill-media").onclick = fillAssetToMediaInputDbg;
+
+        // 原始请求
+        $("dbg-send").onclick = async () => {
+          state.apiBaseUrl = $("dbg-api-base").value.trim() || state.apiBaseUrl;
+          const method = $("dbg-method").value;
+          const path = $("dbg-path").value.trim() || "/api/health";
+          let body = undefined;
+          if (method !== "GET" && method !== "DELETE" && $("dbg-body").value.trim()) {
+            body = $("dbg-body").value;
+          }
+          const r = await fetch(state.apiBaseUrl + path, {
+            method,
+            headers: { "Content-Type": "application/json" },
+            body
+          });
+          const t = await r.text();
+          setOut(`status=${r.status}\n${t}`);
+        };
+        $("dbg-health").onclick = () => { $("dbg-method").value = "GET"; $("dbg-path").value = "/api/health"; $("dbg-send").click(); };
+        $("dbg-projects").onclick = () => { $("dbg-method").value = "GET"; $("dbg-path").value = "/api/projects"; $("dbg-send").click(); };
+
+        // 初始化
+        $("dbg-api-base").value = state.apiBaseUrl;
+        fillValidPayload();
+      }
+
+      async function bootstrap() {
+        await loadConfig();
+        const fromHash = (location.hash || "").replace(/^#/, "");
+        if (["dash", "editor", "viewer", "export"].includes(fromHash)) state.route = fromHash;
+        await loadProjects();
+        await loadProjectDetail(state.selectedProjectId);
+        bindDebugEvents();
+        render();
+      }
+
+      bootstrap();
+    </script>
+  </body>
+</html>

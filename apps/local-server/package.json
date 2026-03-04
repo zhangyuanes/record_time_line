@@ -1,0 +1,10 @@
+{
+  "name": "@chronos/local-server",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Local API server for Chronos Canvas",
+  "type": "commonjs",
+  "scripts": {
+    "dev": "node src/index.js"
+  }
+}

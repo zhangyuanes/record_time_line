@@ -1,0 +1,29 @@
+{
+  "version": "0.1.0",
+  "meta": {
+    "projectId": "project_6c2ba90313",
+    "title": "Frontend Editor Chain",
+    "description": "",
+    "assets": [],
+    "themeConfig": {
+      "themeId": "minimal-list",
+      "motionLevel": "medium"
+    }
+  },
+  "nodes": [
+    {
+      "id": "node_97b04542ad",
+      "timestamp": "2026-03-02T00:00:00.000Z",
+      "title": "Updated First",
+      "body": "",
+      "type": "standard",
+      "layout": "left",
+      "highlight": false,
+      "media": [],
+      "createdAt": "2026-03-04T13:52:41.050Z",
+      "updatedAt": "2026-03-04T13:52:41.094Z"
+    }
+  ],
+  "createdAt": "2026-03-04T13:52:41.007Z",
+  "updatedAt": "2026-03-04T13:52:41.094Z"
+}

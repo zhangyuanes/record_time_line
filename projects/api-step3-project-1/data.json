@@ -1,0 +1,15 @@
+{
+  "version": "0.1.0",
+  "meta": {
+    "projectId": "project_d969830474",
+    "title": "API Step3 Project",
+    "description": "",
+    "themeConfig": {
+      "themeId": "minimal-list",
+      "motionLevel": "medium"
+    }
+  },
+  "nodes": [],
+  "createdAt": "2026-03-04T12:57:58.636Z",
+  "updatedAt": "2026-03-04T12:57:58.636Z"
+}

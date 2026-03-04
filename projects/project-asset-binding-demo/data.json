@@ -1,0 +1,42 @@
+{
+  "version": "0.1.0",
+  "meta": {
+    "projectId": "project_3276ca8d3a",
+    "title": "Project Asset Binding Demo",
+    "description": "",
+    "assets": [
+      {
+        "id": "asset_6d92b96fc4",
+        "kind": "image",
+        "src": "./assets/asset_6d92b96fc4.txt",
+        "sizeBytes": 21,
+        "originalName": "bind.txt"
+      }
+    ],
+    "themeConfig": {
+      "themeId": "minimal-list",
+      "motionLevel": "medium"
+    }
+  },
+  "nodes": [
+    {
+      "id": "node_e3f376eb39",
+      "timestamp": "2026-03-01T00:00:00.000Z",
+      "title": "node with ref",
+      "body": "",
+      "type": "standard",
+      "layout": "left",
+      "highlight": false,
+      "media": [
+        {
+          "assetId": "asset_6d92b96fc4",
+          "src": "./assets/asset_6d92b96fc4.txt"
+        }
+      ],
+      "createdAt": "2026-03-04T13:37:54.641Z",
+      "updatedAt": "2026-03-04T13:37:54.641Z"
+    }
+  ],
+  "createdAt": "2026-03-04T13:37:54.445Z",
+  "updatedAt": "2026-03-04T13:37:54.642Z"
+}

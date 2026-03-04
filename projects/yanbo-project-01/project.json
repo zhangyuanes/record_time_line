@@ -1,0 +1,15 @@
+{
+  "id": "project_4eef3ce6cd",
+  "name": "烟波的项目",
+  "slug": "yanbo-project-01",
+  "title": "烟波的项目",
+  "description": "初始化测试更新",
+  "createdAt": "2026-03-04T13:04:46.743Z",
+  "updatedAt": "2026-03-04T13:42:22.637Z",
+  "themeConfig": {
+    "themeId": "minimal-list",
+    "motionLevel": "medium"
+  },
+  "storagePath": "/Users/zhangyuan/code/record_time_line/projects/yanbo-project-01",
+  "nodeCount": 2
+}
