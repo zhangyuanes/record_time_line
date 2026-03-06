@@ -1,0 +1,328 @@
+{
+  "items": [
+    {
+      "step": 1,
+      "title": "打开预览页",
+      "pass": true,
+      "evidence": {
+        "url": "http://127.0.0.1:5173/export?projectId=project_4eef3ce6cd",
+        "screenshot": "/Users/zhangyuan/code/record_time_line/artifacts/acceptance-2026-03-06T06-05-14-555Z/preview-open.png"
+      },
+      "reason": ""
+    },
+    {
+      "step": 2,
+      "title": "预览页两图节点双列平铺",
+      "pass": true,
+      "evidence": {
+        "found": true,
+        "containerSelector": "#preview-nodes",
+        "image1": {
+          "selector": "img",
+          "rect": {
+            "x": 417,
+            "y": 466.796875,
+            "w": 231,
+            "h": 140
+          },
+          "alt": "炼狱杏寿郎-2.png",
+          "src": "http://127.0.0.1:8787/api/projects/project_4eef3ce6cd/assets/asset_8e9a845c22/raw"
+        },
+        "image2": {
+          "selector": "img",
+          "rect": {
+            "x": 658,
+            "y": 466.796875,
+            "w": 231,
+            "h": 140
+          },
+          "alt": "综合性任务功能链路v2.png",
+          "src": "http://127.0.0.1:8787/api/projects/project_4eef3ce6cd/assets/asset_cd4f1a5521/raw"
+        },
+        "sameRow": true,
+        "sideBySide": true,
+        "isTwoColumn": true
+      },
+      "reason": ""
+    },
+    {
+      "step": 3,
+      "title": "预览页图片预览层打开并Esc关闭",
+      "pass": true,
+      "evidence": {
+        "imgSelector": "img",
+        "before": {
+          "fixedLargeCount": 0,
+          "fixedLargeTop": [],
+          "dialogLike": [
+            {
+              "selector": "div.preview-frame",
+              "tag": "div"
+            },
+            {
+              "selector": "div.preview-head",
+              "tag": "div"
+            }
+          ],
+          "bodyOverflow": "visible"
+        },
+        "afterOpen": {
+          "fixedLargeCount": 1,
+          "fixedLargeTop": [
+            {
+              "selector": "#preview-lightbox",
+              "z": "99",
+              "rect": {
+                "x": 0,
+                "y": 0,
+                "w": 1440,
+                "h": 900
+              }
+            }
+          ],
+          "dialogLike": [
+            {
+              "selector": "div.preview-frame",
+              "tag": "div"
+            },
+            {
+              "selector": "div.preview-head",
+              "tag": "div"
+            },
+            {
+              "selector": "#preview-lightbox",
+              "tag": "div"
+            },
+            {
+              "selector": "#preview-lightbox-close",
+              "tag": "button"
+            }
+          ],
+          "bodyOverflow": "visible"
+        },
+        "afterEsc": {
+          "fixedLargeCount": 0,
+          "fixedLargeTop": [],
+          "dialogLike": [
+            {
+              "selector": "div.preview-frame",
+              "tag": "div"
+            },
+            {
+              "selector": "div.preview-head",
+              "tag": "div"
+            }
+          ],
+          "bodyOverflow": "visible"
+        },
+        "opened": true,
+        "closed": true,
+        "screenshot": "/Users/zhangyuan/code/record_time_line/artifacts/acceptance-2026-03-06T06-05-14-555Z/preview-modal-state.png"
+      },
+      "reason": ""
+    },
+    {
+      "step": 4,
+      "title": "打开导出页",
+      "pass": true,
+      "evidence": {
+        "url": "http://127.0.0.1:9099/index.html",
+        "screenshot": "/Users/zhangyuan/code/record_time_line/artifacts/acceptance-2026-03-06T06-05-14-555Z/bundle-open.png"
+      },
+      "reason": ""
+    },
+    {
+      "step": 5,
+      "title": "导出页两图节点双列平铺",
+      "pass": true,
+      "evidence": {
+        "found": true,
+        "containerSelector": "#timeline",
+        "image1": {
+          "selector": "img",
+          "rect": {
+            "x": 134,
+            "y": 469.5,
+            "w": 241,
+            "h": 140
+          },
+          "alt": "炼狱杏寿郎-2.png",
+          "src": "./assets/asset_8e9a845c22.png"
+        },
+        "image2": {
+          "selector": "img",
+          "rect": {
+            "x": 385,
+            "y": 469.5,
+            "w": 241,
+            "h": 140
+          },
+          "alt": "综合性任务功能链路v2.png",
+          "src": "./assets/asset_cd4f1a5521.png"
+        },
+        "sameRow": true,
+        "sideBySide": true,
+        "isTwoColumn": true
+      },
+      "reason": ""
+    },
+    {
+      "step": 6,
+      "title": "导出页图片预览层打开并遮罩/按钮关闭",
+      "pass": true,
+      "evidence": {
+        "imgSelector": "img",
+        "before": {
+          "fixedLargeCount": 0,
+          "fixedLargeTop": [],
+          "dialogLike": [],
+          "bodyOverflow": "visible"
+        },
+        "afterOpen": {
+          "fixedLargeCount": 1,
+          "fixedLargeTop": [
+            {
+              "selector": "#lightbox",
+              "z": "40",
+              "rect": {
+                "x": 0,
+                "y": 0,
+                "w": 1440,
+                "h": 900
+              }
+            }
+          ],
+          "dialogLike": [
+            {
+              "selector": "#lightbox",
+              "tag": "div"
+            },
+            {
+              "selector": "#lightbox-close",
+              "tag": "button"
+            }
+          ],
+          "bodyOverflow": "visible"
+        },
+        "afterClose": {
+          "fixedLargeCount": 0,
+          "fixedLargeTop": [],
+          "dialogLike": [],
+          "bodyOverflow": "visible"
+        },
+        "closeAction": "button",
+        "opened": true,
+        "closedByMaskOrBtn": true,
+        "screenshot": "/Users/zhangyuan/code/record_time_line/artifacts/acceptance-2026-03-06T06-05-14-555Z/bundle-modal-state.png"
+      },
+      "reason": ""
+    },
+    {
+      "step": 7,
+      "title": "右侧快速导览节点条存在",
+      "pass": true,
+      "evidence": {
+        "hasGuide": true,
+        "candidates": [
+          {
+            "selector": "#quick-nav",
+            "pointCount": 3,
+            "left": 1338,
+            "top": 408,
+            "height": 84
+          }
+        ]
+      },
+      "reason": ""
+    },
+    {
+      "step": 8,
+      "title": "悬浮导览点出现时间提示且对应节点高亮",
+      "pass": true,
+      "evidence": {
+        "pointSelector": "[class*=\"nav\"] [class*=\"dot\"]",
+        "pointIndex": 0,
+        "tooltip": [
+          {
+            "text": "3/5/2026, 5:44:38 PM初始化init已经完成初始化",
+            "rect": {
+              "x": 694,
+              "y": 718.5,
+              "w": 460,
+              "h": 161
+            },
+            "cls": "node right type-quote media-0 rhythm-b",
+            "tag": "article"
+          },
+          {
+            "text": "3/5/2026, 5:44:38 PM",
+            "rect": {
+              "x": 711,
+              "y": 733.5,
+              "w": 428,
+              "h": 17
+            },
+            "cls": "date",
+            "tag": "div"
+          },
+          {
+            "text": "3/6/2026, 9:27:00 PM",
+            "rect": {
+              "x": 133,
+              "y": 934.5,
+              "w": 494,
+              "h": 17
+            },
+            "cls": "date",
+            "tag": "div"
+          },
+          {
+            "text": "3/5/2026, 5:44:38 PM",
+            "rect": {
+              "x": 1345,
+              "y": 439,
+              "w": 70,
+              "h": 22
+            },
+            "cls": "q-item",
+            "tag": "button"
+          },
+          {
+            "text": "3/6/2026, 9:27:00 PM",
+            "rect": {
+              "x": 1345,
+              "y": 461,
+              "w": 70,
+              "h": 22
+            },
+            "cls": "q-item",
+            "tag": "button"
+          }
+        ],
+        "highlightDetected": true,
+        "screenshot": "/Users/zhangyuan/code/record_time_line/artifacts/acceptance-2026-03-06T06-05-14-555Z/bundle-guide-hover.png"
+      },
+      "reason": ""
+    },
+    {
+      "step": 9,
+      "title": "点击导览点滚动定位到对应节点",
+      "pass": true,
+      "evidence": {
+        "pointSelector": "[class*=\"nav\"] [class*=\"dot\"]",
+        "pointIndex": 0,
+        "scrollBefore": 0,
+        "scrollAfter": 0,
+        "delta": 0,
+        "highlightDetected": true,
+        "screenshot": "/Users/zhangyuan/code/record_time_line/artifacts/acceptance-2026-03-06T06-05-14-555Z/bundle-guide-click.png"
+      },
+      "reason": ""
+    }
+  ],
+  "summary": {
+    "passCount": 9,
+    "total": 9,
+    "outputDir": "/Users/zhangyuan/code/record_time_line/artifacts/acceptance-2026-03-06T06-05-14-555Z"
+  }
+}

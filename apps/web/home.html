@@ -49,6 +49,12 @@
         border: none; cursor: pointer; border-radius: 12px; padding: 12px 18px;
         background: var(--brand); color: #fff; font-weight: 700;
         box-shadow: 0 8px 18px rgba(236, 91, 19, 0.35);
+        transition: transform 0.2s ease, box-shadow 0.24s ease, filter 0.2s ease;
+      }
+      .btn-primary:hover {
+        transform: translateY(-2px) scale(1.01);
+        box-shadow: 0 14px 26px rgba(236, 91, 19, 0.45);
+        filter: saturate(1.06);
       }
       .tabs { margin-top: 22px; display: flex; gap: 20px; border-bottom: 1px solid var(--line); }
       .tabs button {
@@ -63,6 +69,12 @@
       }
       .card {
         background: var(--panel); border: 1px solid #161c25; border-radius: 14px; overflow: hidden;
+        transition: transform 0.24s ease, border-color 0.24s ease, box-shadow 0.24s ease;
+      }
+      .card:hover {
+        transform: translateY(-3px);
+        border-color: #2d3a4d;
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.28);
       }
       .thumb {
         height: 130px;
@@ -81,6 +93,41 @@
       .card-empty {
         border: 1px dashed #283141; display: flex; align-items: center; justify-content: center;
         color: #96a0b0; min-height: 228px; border-radius: 14px; background: #10141c;
+        cursor: pointer;
+        transition: background 0.24s ease, border-color 0.24s ease, color 0.24s ease, transform 0.24s ease;
+      }
+      .card-empty:hover {
+        transform: translateY(-3px);
+        background: radial-gradient(circle at 50% 35%, #1b2330 0, #121925 55%, #0f141d 100%);
+        border-color: rgba(212, 175, 55, 0.45);
+        color: #d8dee8;
+      }
+      .card-empty-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+      }
+      .plus-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 999px;
+        border: 1px solid #334155;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        line-height: 1;
+        color: #9ca3af;
+        background: #0f141d;
+        transition: all 0.24s ease;
+      }
+      .card-empty:hover .plus-icon {
+        color: var(--gold);
+        border-color: rgba(212, 175, 55, 0.55);
+        background: rgba(212, 175, 55, 0.08);
+        transform: scale(1.05);
       }
       .stats {
         margin-top: 36px; border-top: 1px solid var(--line); padding-top: 18px;
@@ -98,6 +145,34 @@
         display: flex; align-items: center; justify-content: space-between; color: var(--muted); font-size: 12px;
       }
       .footer a { color: var(--muted); text-decoration: none; margin-left: 12px; }
+      .modal-mask {
+        position: fixed; inset: 0; z-index: 30;
+        background: rgba(0, 0, 0, 0.6);
+        display: none; align-items: center; justify-content: center;
+      }
+      .modal {
+        width: min(640px, calc(100vw - 24px));
+        background: linear-gradient(180deg, #121923 0%, #0f151d 100%);
+        border: 1px solid #2b3950;
+        border-radius: 14px;
+        padding: 18px;
+        box-shadow: 0 22px 40px rgba(0, 0, 0, 0.45);
+      }
+      .modal h3 { margin: 0 0 8px; font-size: 24px; letter-spacing: .02em; }
+      .field { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+      .field label { color: var(--muted); font-size: 12px; }
+      .modal .row { margin-top: 12px; display: flex; gap: 8px; }
+      .modal .row > * { flex: 1; }
+      .modal .status { margin-top: 8px; color: var(--muted); font-size: 12px; }
+      .modal input {
+        background: #0b1118;
+        border: 1px solid #2b3748;
+      }
+      .modal input:focus {
+        outline: none;
+        border-color: rgba(212, 175, 55, 0.65);
+        box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.15);
+      }
       @media (max-width: 1100px) { .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } .stats-grid { grid-template-columns: 1fr; } .hero { flex-direction: column; align-items: flex-start; } }
       @media (max-width: 700px) { .cards { grid-template-columns: 1fr; } .nav { display:none; } .search { min-width: 140px; } .hero h1 { font-size: 34px; } .title { font-size: 18px; } .stat .v{font-size:32px;} }
     </style>
@@ -166,41 +241,135 @@
       </footer>
     </main>
 
+    <div class="modal-mask" id="create-modal">
+      <div class="modal">
+        <h3>新建项目</h3>
+        <p class="meta">填写必要项目信息并创建，创建成功后自动刷新主页。</p>
+        <div class="field">
+          <label>name（必填）</label>
+          <input id="create-name" placeholder="例如：我的时光项目" />
+        </div>
+        <div class="field">
+          <label>slug（可选）</label>
+          <input id="create-slug" placeholder="例如：my-project" />
+        </div>
+        <div class="field">
+          <label>title（可选）</label>
+          <input id="create-title" placeholder="展示标题" />
+        </div>
+        <div class="field">
+          <label>description（可选）</label>
+          <input id="create-description" placeholder="项目描述" />
+        </div>
+        <div class="row">
+          <button id="create-submit" class="btn-primary">创建项目</button>
+          <button id="create-cancel">取消</button>
+        </div>
+        <div class="status" id="create-status"></div>
+      </div>
+    </div>
+
     <script>
+      let apiBase = "http://127.0.0.1:8787";
+
       async function loadConfig() {
         const r = await fetch("/api/config");
         if (!r.ok) return { apiBaseUrl: "http://127.0.0.1:8787" };
         return r.json();
       }
 
-      function cardHtml(title, subtitle, tag) {
+      function esc(s) {
+        return String(s || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+      }
+
+      function cardHtml(title, subtitle, tag, projectId, projectTitle, projectName) {
+        const projectAttr = projectId ? ` data-project-id="${esc(projectId)}"` : "";
+        const titleAttr = projectTitle ? ` data-project-title="${esc(projectTitle)}"` : "";
+        const nameAttr = projectName ? ` data-project-name="${esc(projectName)}"` : "";
         return `
-          <article class="card">
+          <article class="card"${projectAttr}${titleAttr}${nameAttr}>
             <div class="thumb"><span class="tag">${tag}</span></div>
             <div class="body">
-              <h3 class="title">${title}</h3>
-              <div class="meta">● ${subtitle}</div>
+              <h3 class="title">${esc(title)}</h3>
+              <div class="meta">● ${esc(subtitle)}</div>
             </div>
           </article>
         `;
       }
 
-      async function bootstrap() {
-        const cfg = await loadConfig();
-        const apiBase = cfg.apiBaseUrl || "http://127.0.0.1:8787";
+      async function fetchProjects() {
+        try {
+          const r = await fetch(apiBase + "/api/projects");
+          const j = await r.json();
+          return Array.isArray(j.projects) ? j.projects : [];
+        } catch (_) {
+          return [];
+        }
+      }
+
+      async function fetchProjectAssetsCount(projectId) {
+        try {
+          const r = await fetch(apiBase + "/api/projects/" + encodeURIComponent(projectId) + "/assets");
+          const j = await r.json();
+          return Array.isArray(j.assets) ? j.assets.length : 0;
+        } catch (_) {
+          return 0;
+        }
+      }
+
+      function openCreateModal() {
+        document.getElementById("create-modal").style.display = "flex";
+      }
+
+      function closeCreateModal() {
+        document.getElementById("create-modal").style.display = "none";
+      }
+
+      async function createProjectFromModal() {
+        const status = document.getElementById("create-status");
+        const name = document.getElementById("create-name").value.trim();
+        const slug = document.getElementById("create-slug").value.trim();
+        const title = document.getElementById("create-title").value.trim();
+        const description = document.getElementById("create-description").value.trim();
+
+        if (!name) {
+          status.textContent = "name 为必填项。";
+          return;
+        }
+        status.textContent = "创建中...";
+        try {
+          const r = await fetch(apiBase + "/api/projects", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name,
+              slug: slug || undefined,
+              title: title || undefined,
+              description: description || undefined
+            })
+          });
+          const j = await r.json();
+          if (!r.ok) {
+            status.textContent = "创建失败: " + (j.message || j.error || "未知错误");
+            return;
+          }
+          status.textContent = "创建成功，正在刷新...";
+          closeCreateModal();
+          await refreshHome();
+        } catch (e) {
+          status.textContent = "创建失败: 网络异常";
+        }
+      }
+
+      async function refreshHome() {
         const cards = document.getElementById("project-cards");
         const statProject = document.getElementById("stat-project-count");
         const statNode = document.getElementById("stat-node-count");
         const statAsset = document.getElementById("stat-asset-count");
-
-        let projects = [];
-        try {
-          const r = await fetch(apiBase + "/api/projects");
-          const j = await r.json();
-          projects = Array.isArray(j.projects) ? j.projects : [];
-        } catch (_) {
-          projects = [];
-        }
+        const projects = await fetchProjects();
 
         if (!projects.length) {
           cards.innerHTML =
@@ -210,42 +379,70 @@
             cardHtml("祖先回声", "最后编辑: 待编辑", "ARCHIVAL") +
             cardHtml("玻璃档案馆", "最后编辑: 待编辑", "PRISM") +
             cardHtml("星业纪事", "最后编辑: 待编辑", "NEBULA") +
-            `<article class="card-empty">开始新叙事</article>`;
+            `<article class="card-empty" id="new-story-empty"><div class="card-empty-content"><div class="plus-icon">+</div><div>开始新叙事</div></div></article>`;
           statProject.textContent = "0";
           statNode.textContent = "0";
           statAsset.textContent = "0";
+          const empty = document.getElementById("new-story-empty");
+          if (empty) empty.addEventListener("click", openCreateModal);
           return;
         }
 
         const tags = ["VINTAGE", "NOIR", "STELLAR", "ARCHIVAL", "PRISM", "NEBULA"];
         let nodeCount = 0;
-        let assetCount = 0;
         cards.innerHTML = projects
           .slice(0, 7)
           .map((p, i) => {
             nodeCount += Number(p.nodeCount || 0);
-            return cardHtml(p.title || p.name, `最后编辑: ${new Date(p.updatedAt).toLocaleString()}`, tags[i % tags.length]);
+            return cardHtml(
+              p.title || p.name,
+              `最后编辑: ${new Date(p.updatedAt).toLocaleString()}`,
+              tags[i % tags.length],
+              p.id,
+              p.title || p.name,
+              p.name
+            );
           })
           .join("");
-        cards.insertAdjacentHTML("beforeend", `<article class="card-empty">开始新叙事</article>`);
+        cards.insertAdjacentHTML(
+          "beforeend",
+          `<article class="card-empty" id="new-story-empty"><div class="card-empty-content"><div class="plus-icon">+</div><div>开始新叙事</div></div></article>`
+        );
+        const empty = document.getElementById("new-story-empty");
+        if (empty) empty.addEventListener("click", openCreateModal);
+        cards.querySelectorAll(".card[data-project-id]").forEach((el) => {
+          el.style.cursor = "pointer";
+          el.addEventListener("click", () => {
+            const id = el.getAttribute("data-project-id");
+            const title = el.getAttribute("data-project-title") || "";
+            const name = el.getAttribute("data-project-name") || "";
+            if (!id) return;
+            location.href =
+              `/editor?projectId=${encodeURIComponent(id)}&projectTitle=${encodeURIComponent(title)}&projectName=${encodeURIComponent(name)}`;
+          });
+        });
 
-        // 统计第一项目资产数（轻量策略）
-        if (projects[0]) {
-          try {
-            const r = await fetch(apiBase + "/api/projects/" + encodeURIComponent(projects[0].id) + "/assets");
-            const j = await r.json();
-            assetCount = Array.isArray(j.assets) ? j.assets.length : 0;
-          } catch (_) {}
-        }
+        // 汇总所有项目资产条目
+        const assetCounts = await Promise.all(projects.map((p) => fetchProjectAssetsCount(p.id)));
+        const assetCount = assetCounts.reduce((sum, c) => sum + c, 0);
 
         statProject.textContent = String(projects.length);
         statNode.textContent = String(nodeCount);
         statAsset.textContent = String(assetCount);
       }
 
-      document.getElementById("new-project-btn").addEventListener("click", () => {
-        window.location.href = "/";
-      });
+      async function bootstrap() {
+        const cfg = await loadConfig();
+        apiBase = cfg.apiBaseUrl || "http://127.0.0.1:8787";
+        document.getElementById("new-project-btn").addEventListener("click", openCreateModal);
+        document.getElementById("create-submit").addEventListener("click", createProjectFromModal);
+        document.getElementById("create-cancel").addEventListener("click", closeCreateModal);
+        document.getElementById("create-modal").addEventListener("click", (e) => {
+          if (e.target.id === "create-modal") closeCreateModal();
+        });
+        await refreshHome();
+      }
+
       bootstrap();
     </script>
   </body>

@@ -94,8 +94,8 @@ function validateAssetLibrary(assets, errors, pathPrefix) {
     if (typeof asset.id !== "string" || !asset.id) {
       errors.push(`${p}.id 必须是非空字符串`);
     }
-    if (!["image", "video", "audio"].includes(asset.kind)) {
-      errors.push(`${p}.kind 必须是 image|video|audio`);
+    if (!["image", "video", "audio", "file"].includes(asset.kind)) {
+      errors.push(`${p}.kind 必须是 image|video|audio|file`);
     }
     if (!isRelativeAssetPath(asset.src)) {
       errors.push(`${p}.src 必须是相对资源路径，且以 ./assets/ 开头`);

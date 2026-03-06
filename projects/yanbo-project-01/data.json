@@ -10,7 +10,21 @@
         "kind": "image",
         "src": "./assets/asset_8e9a845c22.png",
         "sizeBytes": 2133973,
-        "originalName": "__________-__-2.png"
+        "originalName": "炼狱杏寿郎-2.png"
+      },
+      {
+        "id": "asset_cd4f1a5521",
+        "kind": "image",
+        "src": "./assets/asset_cd4f1a5521.png",
+        "sizeBytes": 186577,
+        "originalName": "综合性任务功能链路v2.png"
+      },
+      {
+        "id": "asset_78fda215db",
+        "kind": "file",
+        "src": "./assets/asset_78fda215db.pdf",
+        "sizeBytes": 1039930,
+        "originalName": "信息研发团队服务稳定性公约 .pdf"
       }
     ],
     "themeConfig": {
@@ -32,24 +46,65 @@
         {
           "assetId": "asset_8e9a845c22",
           "src": "./assets/asset_8e9a845c22.png"
+        },
+        {
+          "assetId": "asset_cd4f1a5521",
+          "src": "./assets/asset_cd4f1a5521.png"
         }
       ],
+      "link": {
+        "url": "https://github.com/zhangyuanes/record_time_line",
+        "text": "github仓库"
+      },
       "createdAt": "2026-03-04T13:27:54.816Z",
-      "updatedAt": "2026-03-04T13:42:22.637Z"
+      "updatedAt": "2026-03-05T09:15:18.322Z"
+    },
+    {
+      "id": "node_291a5c34b0",
+      "timestamp": "2026-03-05T09:44:38.169Z",
+      "title": "初始化init",
+      "body": "已经完成初始化",
+      "type": "quote",
+      "layout": "left",
+      "highlight": false,
+      "media": [],
+      "createdAt": "2026-03-05T09:44:38.204Z",
+      "updatedAt": "2026-03-05T09:45:19.996Z"
+    },
+    {
+      "id": "node_415eb9d31b",
+      "timestamp": "2026-03-06T06:08:06.452Z",
+      "title": "测试导出效果",
+      "body": " - Dash 页面\n  - 编辑页面\n  - 预览与导出页面\n  - 导出管理页",
+      "type": "standard",
+      "layout": "left",
+      "highlight": false,
+      "media": [],
+      "createdAt": "2026-03-06T06:08:06.475Z",
+      "updatedAt": "2026-03-06T06:09:17.908Z"
     },
     {
       "id": "node_ebbb4b5721",
       "timestamp": "2026-03-06T13:27:00.000Z",
       "title": "烟波的step1",
       "body": "## 嘿嘿",
-      "type": "standard",
-      "layout": "center",
+      "type": "gallery",
+      "layout": "left",
       "highlight": false,
-      "media": [],
+      "media": [
+        {
+          "assetId": "asset_cd4f1a5521",
+          "src": "./assets/asset_cd4f1a5521.png"
+        },
+        {
+          "assetId": "asset_78fda215db",
+          "src": "./assets/asset_78fda215db.pdf"
+        }
+      ],
       "createdAt": "2026-03-04T13:28:22.132Z",
-      "updatedAt": "2026-03-04T13:28:22.132Z"
+      "updatedAt": "2026-03-06T02:56:04.061Z"
     }
   ],
   "createdAt": "2026-03-04T13:04:46.743Z",
-  "updatedAt": "2026-03-04T13:42:22.637Z"
+  "updatedAt": "2026-03-06T06:09:17.908Z"
 }

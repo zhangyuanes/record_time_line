@@ -2,3 +2,7 @@
 .idea
 .vscode
 .DS_Store
+
+# Export bundles (generated artifacts)
+projects/*/exports/
+**/exports/

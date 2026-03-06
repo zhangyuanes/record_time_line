@@ -7,6 +7,8 @@ const PORT = Number(process.env.PORT || 5173);
 const ROOT = path.resolve(__dirname, "..");
 const INDEX_HTML = path.join(ROOT, "index.html");
 const HOME_HTML = path.join(ROOT, "home.html");
+const EDITOR_HTML = path.join(ROOT, "editor.html");
+const EXPORT_HTML = path.join(ROOT, "export.html");
 
 function send(res, status, contentType, body) {
   res.writeHead(status, { "Content-Type": contentType });
@@ -45,6 +47,20 @@ const server = http.createServer((req, res) => {
       return send(res, 500, "text/plain; charset=utf-8", "Missing apps/web/home.html");
     }
     return send(res, 200, "text/html; charset=utf-8", fs.readFileSync(HOME_HTML, "utf8"));
+  }
+
+  if (requestUrl.pathname === "/editor" || requestUrl.pathname === "/editor.html") {
+    if (!fs.existsSync(EDITOR_HTML)) {
+      return send(res, 500, "text/plain; charset=utf-8", "Missing apps/web/editor.html");
+    }
+    return send(res, 200, "text/html; charset=utf-8", fs.readFileSync(EDITOR_HTML, "utf8"));
+  }
+
+  if (requestUrl.pathname === "/export" || requestUrl.pathname === "/export.html") {
+    if (!fs.existsSync(EXPORT_HTML)) {
+      return send(res, 500, "text/plain; charset=utf-8", "Missing apps/web/export.html");
+    }
+    return send(res, 200, "text/html; charset=utf-8", fs.readFileSync(EXPORT_HTML, "utf8"));
   }
 
   if (!fs.existsSync(INDEX_HTML)) {

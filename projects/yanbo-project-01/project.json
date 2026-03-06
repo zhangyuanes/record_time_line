@@ -5,11 +5,11 @@
   "title": "烟波的项目",
   "description": "初始化测试更新",
   "createdAt": "2026-03-04T13:04:46.743Z",
-  "updatedAt": "2026-03-04T13:42:22.637Z",
+  "updatedAt": "2026-03-06T06:09:17.908Z",
   "themeConfig": {
     "themeId": "minimal-list",
     "motionLevel": "medium"
   },
   "storagePath": "/Users/zhangyuan/code/record_time_line/projects/yanbo-project-01",
-  "nodeCount": 2
+  "nodeCount": 4
 }

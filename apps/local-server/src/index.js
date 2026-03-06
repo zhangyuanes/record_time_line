@@ -1,6 +1,7 @@
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
+const { spawn } = require("child_process");
 const { TIMELINE_DOCUMENT_VERSION } = require("./domain/constants");
 const { validateTimelineDocument } = require("./domain/validation");
 const {
@@ -13,6 +14,8 @@ const {
   deleteNode,
   reorderNodes,
   uploadAssetBase64,
+  addAssetObject,
+  exportProjectBundle,
   deleteAsset,
   listProjectAssets
 } = require("./domain/storage");
@@ -101,6 +104,70 @@ function parseAssetDeletePath(pathname) {
     projectId: decodeURIComponent(m[1]),
     assetId: decodeURIComponent(m[2])
   };
+}
+
+function parseAssetRawPath(pathname) {
+  const m = pathname.match(/^\/api\/projects\/([^/]+)\/assets\/([^/]+)\/raw$/);
+  if (!m) return null;
+  return {
+    projectId: decodeURIComponent(m[1]),
+    assetId: decodeURIComponent(m[2])
+  };
+}
+
+function parseAssetObjectPath(pathname) {
+  const m = pathname.match(/^\/api\/projects\/([^/]+)\/assets\/object$/);
+  return m ? decodeURIComponent(m[1]) : null;
+}
+
+function parseExportPath(pathname) {
+  const m = pathname.match(/^\/api\/projects\/([^/]+)\/export$/);
+  return m ? decodeURIComponent(m[1]) : null;
+}
+
+function parseExportFilePath(pathname) {
+  const m = pathname.match(/^\/api\/projects\/([^/]+)\/exports\/([^/]+)\/(.+)$/);
+  if (!m) return null;
+  return {
+    projectId: decodeURIComponent(m[1]),
+    bundleName: decodeURIComponent(m[2]),
+    relativePath: decodeURIComponent(m[3])
+  };
+}
+
+function isPathInside(base, target) {
+  const b = path.resolve(base);
+  const t = path.resolve(target);
+  return t === b || t.startsWith(b + path.sep);
+}
+
+function guessContentTypeByExt(filePath) {
+  const ext = path.extname(filePath).toLowerCase();
+  if ([".jpg", ".jpeg"].includes(ext)) return "image/jpeg";
+  if (ext === ".png") return "image/png";
+  if (ext === ".gif") return "image/gif";
+  if (ext === ".webp") return "image/webp";
+  if (ext === ".bmp") return "image/bmp";
+  if (ext === ".mp4") return "video/mp4";
+  if (ext === ".webm") return "video/webm";
+  if (ext === ".mov") return "video/quicktime";
+  if (ext === ".mp3") return "audio/mpeg";
+  if (ext === ".wav") return "audio/wav";
+  if (ext === ".ogg") return "audio/ogg";
+  if (ext === ".m4a") return "audio/mp4";
+  if (ext === ".pdf") return "application/pdf";
+  if (ext === ".xml") return "application/xml";
+  if (ext === ".txt") return "text/plain; charset=utf-8";
+  if (ext === ".csv") return "text/csv; charset=utf-8";
+  if (ext === ".json") return "application/json; charset=utf-8";
+  if (ext === ".ppt") return "application/vnd.ms-powerpoint";
+  if (ext === ".pptx") return "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+  if (ext === ".doc") return "application/msword";
+  if (ext === ".docx") return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+  if (ext === ".xls") return "application/vnd.ms-excel";
+  if (ext === ".xlsx") return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+  if (ext === ".zip") return "application/zip";
+  return "application/octet-stream";
 }
 
 const server = http.createServer((req, res) => {
@@ -230,6 +297,78 @@ const server = http.createServer((req, res) => {
     }
   }
 
+  if (req.method === "GET") {
+    const parsed = parseAssetRawPath(url.pathname);
+    if (parsed) {
+      try {
+        const found = getProjectById(PROJECTS_ROOT, parsed.projectId);
+        if (!found) {
+          return sendError(res, 404, "PROJECT_NOT_FOUND", "项目不存在");
+        }
+        const assets = listProjectAssets(PROJECTS_ROOT, parsed.projectId);
+        const asset = assets.find((a) => a.id === parsed.assetId);
+        if (!asset) {
+          return sendError(res, 404, "ASSET_NOT_FOUND", "资源不存在");
+        }
+        const normalized = String(asset.src || "");
+        if (!normalized.startsWith("./assets/") || normalized.includes("..")) {
+          return sendError(res, 400, "INVALID_INPUT", "资源路径非法");
+        }
+        const absPath = path.join(found.project.storagePath, normalized.replace("./", ""));
+        if (!fs.existsSync(absPath)) {
+          return sendError(res, 404, "ASSET_FILE_NOT_FOUND", "资源文件不存在");
+        }
+        const contentType = guessContentTypeByExt(absPath);
+        res.writeHead(200, {
+          "Content-Type": contentType,
+          "Cache-Control": "no-cache",
+          "Access-Control-Allow-Origin": "*"
+        });
+        fs.createReadStream(absPath).pipe(res);
+        return;
+      } catch (err) {
+        return sendError(res, 400, err.code || "INVALID_INPUT", err.message || "读取资源失败");
+      }
+    }
+  }
+
+  if (req.method === "GET") {
+    const parsed = parseExportFilePath(url.pathname);
+    if (parsed) {
+      try {
+        const found = getProjectById(PROJECTS_ROOT, parsed.projectId);
+        if (!found) {
+          return sendError(res, 404, "PROJECT_NOT_FOUND", "项目不存在");
+        }
+        if (!parsed.bundleName || !parsed.bundleName.startsWith("bundle_")) {
+          return sendError(res, 400, "INVALID_INPUT", "导出包名称非法");
+        }
+        if (!parsed.relativePath || parsed.relativePath.includes("..")) {
+          return sendError(res, 400, "INVALID_INPUT", "导出文件路径非法");
+        }
+        const exportsRoot = path.join(found.project.storagePath, "exports");
+        const bundleRoot = path.join(exportsRoot, parsed.bundleName);
+        const targetPath = path.resolve(bundleRoot, parsed.relativePath);
+        if (!isPathInside(exportsRoot, targetPath)) {
+          return sendError(res, 403, "FORBIDDEN", "不允许访问项目范围外文件");
+        }
+        if (!fs.existsSync(targetPath) || !fs.statSync(targetPath).isFile()) {
+          return sendError(res, 404, "NOT_FOUND", "导出文件不存在");
+        }
+        const contentType = guessContentTypeByExt(targetPath);
+        res.writeHead(200, {
+          "Content-Type": contentType,
+          "Cache-Control": "no-cache",
+          "Access-Control-Allow-Origin": "*"
+        });
+        fs.createReadStream(targetPath).pipe(res);
+        return;
+      } catch (err) {
+        return sendError(res, 400, err.code || "INVALID_INPUT", err.message || "读取导出文件失败");
+      }
+    }
+  }
+
   if (req.method === "GET" && url.pathname === "/api/projects") {
     ensureProjectsRoot();
     return sendJson(res, 200, {
@@ -288,6 +427,77 @@ const server = http.createServer((req, res) => {
             return sendError(res, 404, "PROJECT_NOT_FOUND", "项目不存在");
           }
           return sendError(res, 400, err.code || "INVALID_INPUT", err.message || "重排失败");
+        });
+    }
+  }
+
+  if (req.method === "POST") {
+    if (url.pathname === "/api/system/open-path") {
+      return readJsonBody(req)
+        .then((body) => {
+          const targetPath = typeof body.path === "string" ? body.path : "";
+          if (!targetPath) {
+            return sendError(res, 400, "INVALID_INPUT", "path 不能为空");
+          }
+          if (!isPathInside(PROJECTS_ROOT, targetPath)) {
+            return sendError(res, 403, "FORBIDDEN", "仅允许打开项目目录范围内路径");
+          }
+          if (!fs.existsSync(targetPath)) {
+            return sendError(res, 404, "NOT_FOUND", "目标路径不存在");
+          }
+
+          let cmd = "open";
+          let args = [targetPath];
+          if (process.platform === "win32") {
+            cmd = "cmd";
+            args = ["/c", "start", "", targetPath];
+          } else if (process.platform === "linux") {
+            cmd = "xdg-open";
+            args = [targetPath];
+          }
+          const p = spawn(cmd, args, { detached: true, stdio: "ignore" });
+          p.unref();
+          return sendJson(res, 200, { ok: true, openedPath: targetPath });
+        })
+        .catch((err) => sendError(res, 400, err.code || "INVALID_INPUT", err.message || "打开目录失败"));
+    }
+  }
+
+  if (req.method === "POST") {
+    const projectId = parseExportPath(url.pathname);
+    if (projectId) {
+      return readJsonBody(req)
+        .then((body) => {
+          const result = exportProjectBundle(PROJECTS_ROOT, projectId, {
+            passwordProtect: Boolean(body.passwordProtect),
+            password: typeof body.password === "string" ? body.password : "",
+            losslessAssets: body.losslessAssets !== false,
+            removeMetadata: Boolean(body.removeMetadata)
+          });
+          return sendJson(res, 200, { ok: true, ...result });
+        })
+        .catch((err) => {
+          if (err.code === "PROJECT_NOT_FOUND") {
+            return sendError(res, 404, "PROJECT_NOT_FOUND", "项目不存在");
+          }
+          return sendError(res, 400, err.code || "INVALID_INPUT", err.message || "导出失败");
+        });
+    }
+  }
+
+  if (req.method === "POST") {
+    const projectId = parseAssetObjectPath(url.pathname);
+    if (projectId) {
+      return readJsonBody(req)
+        .then((body) => {
+          const asset = addAssetObject(PROJECTS_ROOT, projectId, body.asset || {});
+          return sendJson(res, 201, { ok: true, asset });
+        })
+        .catch((err) => {
+          if (err.code === "PROJECT_NOT_FOUND") {
+            return sendError(res, 404, "PROJECT_NOT_FOUND", "项目不存在");
+          }
+          return sendError(res, 400, err.code || "INVALID_INPUT", err.message || "新增资源对象失败");
         });
     }
   }

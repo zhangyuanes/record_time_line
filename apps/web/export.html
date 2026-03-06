@@ -1,0 +1,745 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chronos Canvas | 导出</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #140d09;
+        --obsidian: #1a120e;
+        --line: #3b261b;
+        --text: #f6efe8;
+        --muted: #b89f8f;
+        --accent: #ec5b13;
+        --gold: #d4af37;
+      }
+      * { box-sizing: border-box; }
+      html, body { height: 100%; margin: 0; background: var(--bg); color: var(--text); font-family: Inter, "PingFang SC", sans-serif; }
+      .app { height: 100%; display: grid; grid-template-rows: 58px 1fr; }
+      .top {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(26, 18, 14, 0.92);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 18px;
+      }
+      .brand { font-size: 22px; font-weight: 800; letter-spacing: 0.02em; }
+      .brand span { color: var(--accent); font-weight: 500; }
+      .nav { display: flex; gap: 18px; align-items: center; }
+      .nav a { color: #c5b8ae; text-decoration: none; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
+      .nav a.active { color: var(--accent); border-bottom: 2px solid var(--accent); padding-bottom: 6px; }
+      .main { min-height: 0; display: grid; grid-template-columns: 360px 1fr; }
+      .left { border-right: 1px solid rgba(255, 255, 255, 0.08); background: rgba(24, 17, 12, 0.95); padding: 20px 18px; overflow: auto; }
+      .title { margin: 0; font-size: 44px; font-family: "Noto Serif SC", serif; }
+      .desc { margin: 8px 0 0; color: var(--muted); font-size: 13px; }
+      .section { margin-top: 22px; }
+      .label { color: var(--accent); letter-spacing: 0.18em; font-size: 10px; text-transform: uppercase; margin-bottom: 10px; }
+      .format-card {
+        border: 1px solid rgba(236, 91, 19, 0.55);
+        border-radius: 12px;
+        background: linear-gradient(140deg, rgba(236, 91, 19, 0.14), rgba(236, 91, 19, 0.03));
+        padding: 12px;
+      }
+      .format-name { font-size: 16px; font-weight: 700; }
+      .format-tip { color: var(--muted); margin-top: 6px; font-size: 12px; }
+      .setting {
+        margin-top: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 12px;
+        padding: 11px 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .setting .name { font-weight: 700; font-size: 14px; }
+      .setting .tip { color: var(--muted); font-size: 11px; margin-top: 4px; }
+      .switch { width: 42px; height: 22px; border-radius: 999px; background: #5a616f; position: relative; border: 1px solid #6c7380; cursor: pointer; }
+      .switch::after { content: ""; width: 16px; height: 16px; border-radius: 999px; background: #fff; position: absolute; top: 2px; left: 2px; transition: transform .2s ease; }
+      .switch.on { background: var(--accent); border-color: #f27b3f; }
+      .switch.on::after { transform: translateX(20px); }
+      .input {
+        margin-top: 8px; width: 100%; border: 1px solid #4f5968; border-radius: 10px; background: #11171f; color: var(--text); padding: 10px;
+      }
+      .btn-run {
+        margin-top: 16px; width: 100%; border: none; border-radius: 12px; padding: 14px 12px; cursor: pointer;
+        background: linear-gradient(180deg, #ff6d22, #e6520f); color: #fff; font-size: 16px; font-weight: 800;
+        box-shadow: 0 16px 26px rgba(236, 91, 19, 0.35);
+      }
+      .btn-open {
+        margin-top: 8px;
+        width: 100%;
+        border: 1px solid rgba(212, 175, 55, 0.4);
+        border-radius: 10px;
+        padding: 10px 12px;
+        cursor: pointer;
+        background: rgba(212, 175, 55, 0.08);
+        color: #f6e6cb;
+        font-size: 13px;
+        display: none;
+      }
+      .btn-open:hover { border-color: rgba(212,175,55,.75); background: rgba(212,175,55,.16); }
+      .progress { margin-top: 10px; }
+      .progress-meta { display: flex; justify-content: space-between; color: var(--muted); font-size: 11px; }
+      .bar { margin-top: 6px; height: 5px; border-radius: 999px; overflow: hidden; background: #2f3744; }
+      .bar > i { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), var(--gold)); transition: width .3s ease; }
+      .status { margin-top: 8px; color: #cfd5de; font-size: 12px; white-space: pre-wrap; }
+      .right {
+        min-width: 0;
+        overflow: auto;
+        padding: 24px 24px 30px 24px;
+        background:
+          radial-gradient(circle at 30% 20%, rgba(236, 91, 19, 0.1), transparent 32%),
+          radial-gradient(circle at 72% 56%, rgba(212, 175, 55, 0.08), transparent 38%),
+          #140d09;
+      }
+      .preview-frame {
+        max-width: 1120px;
+        margin: 0 auto;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 18px;
+        background: rgba(13, 10, 8, 0.88);
+        overflow: hidden;
+        box-shadow: 0 24px 44px rgba(0, 0, 0, 0.36);
+      }
+      .preview-head {
+        height: 42px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 12px;
+      }
+      .dots { display: flex; gap: 5px; }
+      .dots i { width: 9px; height: 9px; border-radius: 999px; background: #7f838c; opacity: .65; }
+      .url { padding: 4px 10px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.08); color: #9ea6b6; font-size: 11px; }
+      .timeline {
+        position: relative;
+        padding: 22px 18px 40px;
+      }
+      .timeline::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-1px);
+        width: 2px;
+        background: linear-gradient(180deg, transparent, rgba(212,175,55,.9) 18%, rgba(236,91,19,.8) 70%, transparent);
+      }
+      .hero { text-align: center; padding: 12px 0 24px; }
+      .hero .date { color: var(--gold); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; }
+      .hero .h1 { margin-top: 8px; font-size: 40px; font-family: "Noto Serif SC", serif; }
+      .hero .p { color: var(--muted); margin-top: 8px; font-size: 12px; }
+      .node {
+        --node-w: min(620px, calc(50% - 40px));
+        width: var(--node-w);
+        min-width: 460px;
+        margin: 0 0 20px 0;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 14px;
+        padding: 12px;
+        background: rgba(27, 21, 16, 0.76);
+        position: relative;
+        transition: transform .24s ease, border-color .24s ease, box-shadow .24s ease;
+      }
+      .node:hover {
+        transform: translateY(-3px);
+        border-color: rgba(212, 175, 55, 0.65);
+        box-shadow: 0 16px 28px rgba(0, 0, 0, 0.3);
+      }
+      .node::before {
+        content: "";
+        position: absolute;
+        top: 24px;
+        width: 11px;
+        height: 11px;
+        border-radius: 999px;
+        background: var(--gold);
+        box-shadow: 0 0 0 4px rgba(212,175,55,.2), 0 0 14px rgba(236,91,19,.45);
+      }
+      .node.left { margin-right: calc(50% + 26px); }
+      .node.right { margin-left: calc(50% + 26px); }
+      .node.left::before { right: -34px; }
+      .node.right::before { left: -34px; }
+      .node.rhythm-a { margin-bottom: 30px; }
+      .node.rhythm-b { margin-top: 20px; margin-bottom: 34px; }
+      .node.rhythm-c { margin-top: 8px; margin-bottom: 26px; }
+      .node.type-gallery { --node-w: min(620px, calc(50% - 34px)); }
+      .node.type-gallery h3 { color: #f8ddb1; }
+      .node.type-gallery .b { text-align: center; margin-left: auto; margin-right: auto; max-width: 560px; }
+      .node.type-gallery .media { justify-content: center; }
+      .node.type-gallery .m-card { width: min(260px, 100%); }
+      .node.type-quote {
+        --node-w: min(430px, calc(50% - 92px));
+        border-left: 3px solid rgba(212, 175, 55, 0.9);
+        background: linear-gradient(150deg, rgba(212,175,55,.1), rgba(27,21,16,.8));
+      }
+      .node.type-quote .b { font-family: "Noto Serif SC", serif; font-size: 28px; line-height: 1.5; color: #f6f2ea; }
+      .node.type-quote .b p::before { content: "“"; color: var(--gold); margin-right: 2px; }
+      .node.type-quote .b p::after { content: "”"; color: var(--gold); margin-left: 2px; }
+      .node.type-video { --node-w: min(580px, calc(50% - 46px)); }
+      .node.type-video .m-card { width: 100%; }
+      .node.media-0 { --node-w: min(450px, calc(50% - 104px)); }
+      .node.media-1 { --node-w: min(510px, calc(50% - 78px)); }
+      .node.media-2, .node.media-3 { --node-w: min(680px, calc(50% - 24px)); min-width: 500px; }
+      .node h3 { margin: 6px 0 8px; font-size: 30px; font-family: "Noto Serif SC", serif; }
+      .node .d { color: #e3b377; font-size: 11px; letter-spacing: .07em; text-transform: uppercase; }
+      .node .b { color: #e5d6c7; font-size: 14px; line-height: 1.7; }
+      .node .b h2, .node .b h3, .node .b h4 { margin: 10px 0 6px; color: #f5ede3; font-family: "Noto Serif SC", serif; }
+      .node .b p { margin: 8px 0; }
+      .node .b ul, .node .b ol { margin: 8px 0; padding-left: 20px; }
+      .node .b blockquote {
+        margin: 10px 0;
+        padding: 8px 10px;
+        border-left: 3px solid rgba(212, 175, 55, 0.8);
+        background: rgba(212, 175, 55, 0.08);
+        border-radius: 8px;
+        color: #f1e7d7;
+      }
+      .node .b code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        background: rgba(255,255,255,.08);
+        border-radius: 6px;
+        padding: 1px 4px;
+      }
+      .node .b pre {
+        margin: 10px 0;
+        background: #0d1015;
+        border: 1px solid rgba(255,255,255,.14);
+        border-radius: 10px;
+        padding: 10px 12px;
+        overflow: auto;
+      }
+      .node .b pre code { background: transparent; padding: 0; }
+      .node .b a { color: #ffd7b2; text-decoration: underline; }
+      .media { margin-top: 10px; display: grid; gap: 8px; grid-template-columns: minmax(0, 1fr); }
+      .media.two-col { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .m-card { width: 100%; border: 1px solid rgba(212, 175, 55, 0.25); border-radius: 12px; overflow: hidden; background: #111318; }
+      .m-card img, .m-card video { width: 100%; height: 140px; object-fit: cover; display: block; }
+      .img-trigger {
+        width: 100%;
+        border: 0;
+        padding: 0;
+        cursor: zoom-in;
+        display: block;
+        background: transparent;
+      }
+      .m-card audio { width: 100%; padding: 10px; }
+      .m-file { display: flex; align-items: center; gap: 10px; text-decoration: none; color: #e8edf6; padding: 10px; }
+      .m-file-icon { width: 38px; height: 38px; border-radius: 8px; border: 1px solid #445066; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; letter-spacing: .03em; }
+      .m-file-icon.pdf { color: #fee2e2; background: #4a1515; border-color: #a53535; }
+      .m-file-icon.doc { color: #dbeafe; background: #152e59; border-color: #2f67cb; }
+      .m-file-icon.xls { color: #dcfce7; background: #143826; border-color: #2e8b57; }
+      .m-file-icon.ppt { color: #ffedd5; background: #4b240d; border-color: #b75a24; }
+      .m-file-icon.xml { color: #f3e8ff; background: #3a1d54; border-color: #7642b4; }
+      .m-file-icon.zip { color: #fef3c7; background: #49340f; border-color: #b28724; }
+      .m-file-icon.txt { color: #e5e7eb; background: #2a3341; border-color: #4b5563; }
+      .link {
+        margin-top: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 9px 10px;
+        text-decoration: none; color: #ecf2fc;
+        background: linear-gradient(130deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+        transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+      }
+      .link:hover { transform: translateY(-2px); border-color: rgba(212,175,55,.68); box-shadow: 0 12px 20px rgba(0,0,0,.24); }
+      .quote .b { font-family: "Noto Serif SC", serif; font-size: 27px; line-height: 1.5; }
+      .empty { text-align: center; color: var(--muted); padding: 36px 0; }
+      .lightbox {
+        position: fixed;
+        inset: 0;
+        z-index: 99;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background: rgba(8, 6, 5, 0.88);
+        backdrop-filter: blur(4px);
+        padding: 24px;
+      }
+      .lightbox.open { display: flex; }
+      .lightbox img {
+        max-width: min(1200px, calc(100vw - 60px));
+        max-height: calc(100vh - 80px);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        box-shadow: 0 24px 44px rgba(0, 0, 0, 0.5);
+      }
+      .lightbox-close {
+        position: absolute;
+        top: 14px;
+        right: 18px;
+        width: 36px;
+        height: 36px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        background: rgba(0, 0, 0, 0.35);
+        color: #fff;
+        font-size: 24px;
+        cursor: pointer;
+        line-height: 1;
+      }
+      @media (max-width: 980px) {
+        .main { grid-template-columns: 1fr; }
+        .left { border-right: 0; border-bottom: 1px solid rgba(255,255,255,.08); }
+        .timeline::before { left: 20px; transform: none; }
+        .node { margin-left: 36px !important; width: calc(100% - 36px); min-width: 0; }
+        .media.two-col { grid-template-columns: minmax(0, 1fr); }
+        .node::before { left: -24px !important; right: auto !important; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <header class="top">
+        <div class="brand">CHRONOS <span>CANVAS</span></div>
+        <nav class="nav">
+          <a href="/home">Dashboard</a>
+          <a id="to-editor-link" href="/editor">Editor</a>
+          <a class="active" href="#">导出</a>
+        </nav>
+      </header>
+      <main class="main">
+        <section class="left">
+          <h1 class="title">导出画布</h1>
+          <p class="desc">将您的创作结晶导出为本地可分享的离线包（包含 index.html 与全部媒体）。</p>
+
+          <div class="section">
+            <div class="label">输出格式</div>
+            <div class="format-card">
+              <div class="format-name">静态离线包（本地）</div>
+              <div class="format-tip">仅本地导出，不包含云端入口。解压后直接打开 `index.html` 即可浏览时间线。</div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="label">安全与性能</div>
+            <div class="setting">
+              <div>
+                <div class="name">密码保护</div>
+                <div class="tip">为导出包增加访问口令（轻量保护，适合非敏感场景）。</div>
+              </div>
+              <div class="switch" id="sw-password"></div>
+            </div>
+            <input id="password-input" class="input" placeholder="输入导出包访问密码（可选）" style="display:none;" />
+            <div class="setting">
+              <div>
+                <div class="name">无损资产</div>
+                <div class="tip">默认开启，保持原始媒体质量进行拷贝。</div>
+              </div>
+              <div class="switch on" id="sw-lossless"></div>
+            </div>
+            <div class="setting">
+              <div>
+                <div class="name">移除元数据</div>
+                <div class="tip">移除时间戳和部分技术字段，降低信息暴露。</div>
+              </div>
+              <div class="switch" id="sw-remove-meta"></div>
+            </div>
+          </div>
+
+          <button class="btn-run" id="run-export-btn">结晶化画布</button>
+          <button class="btn-open" id="open-export-dir-btn">打开导出目录</button>
+          <div class="progress">
+            <div class="progress-meta"><span>导出状态</span><span id="progress-value">0%</span></div>
+            <div class="bar"><i id="progress-bar"></i></div>
+          </div>
+          <div class="status" id="export-status">等待导出...</div>
+        </section>
+
+        <section class="right">
+          <div class="preview-frame">
+            <div class="preview-head">
+              <div class="dots"><i></i><i></i><i></i></div>
+              <div class="url" id="preview-url">chronos.local/export-preview</div>
+            </div>
+            <div class="timeline">
+              <div class="hero">
+                <div class="date" id="hero-date">准备加载</div>
+                <div class="h1" id="hero-title">导出预览</div>
+                <div class="p" id="hero-desc">正在读取项目节点...</div>
+              </div>
+              <div id="preview-nodes"></div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+    <div class="lightbox" id="preview-lightbox">
+      <button class="lightbox-close" id="preview-lightbox-close" type="button" aria-label="关闭大图">×</button>
+      <img id="preview-lightbox-img" src="" alt="" />
+    </div>
+
+    <script>
+      let apiBase = "http://127.0.0.1:8787";
+      let projectId = "";
+      let project = null;
+      let timeline = null;
+      const state = {
+        passwordProtect: false,
+        losslessAssets: true,
+        removeMetadata: false,
+        lastExportPath: "",
+        lastExportBundle: ""
+      };
+
+      function esc(s) {
+        return String(s || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+      }
+      function escAttr(s) {
+        return esc(s).replace(/"/g, "&quot;");
+      }
+      function fileIcon(name) {
+        const n = String(name || "").toLowerCase();
+        if (n.endsWith(".pdf")) return "PDF";
+        if (n.endsWith(".doc") || n.endsWith(".docx")) return "DOC";
+        if (n.endsWith(".xls") || n.endsWith(".xlsx")) return "XLS";
+        if (n.endsWith(".ppt") || n.endsWith(".pptx")) return "PPT";
+        if (n.endsWith(".xml")) return "XML";
+        if (n.endsWith(".zip") || n.endsWith(".7z") || n.endsWith(".rar")) return "ZIP";
+        if (n.endsWith(".txt") || n.endsWith(".csv") || n.endsWith(".json")) return "TXT";
+        return "FILE";
+      }
+      function fileIconClass(name) {
+        const n = String(name || "").toLowerCase();
+        if (n.endsWith(".pdf")) return "pdf";
+        if (n.endsWith(".doc") || n.endsWith(".docx")) return "doc";
+        if (n.endsWith(".xls") || n.endsWith(".xlsx")) return "xls";
+        if (n.endsWith(".ppt") || n.endsWith(".pptx")) return "ppt";
+        if (n.endsWith(".xml")) return "xml";
+        if (n.endsWith(".zip") || n.endsWith(".7z") || n.endsWith(".rar")) return "zip";
+        if (n.endsWith(".txt") || n.endsWith(".csv") || n.endsWith(".json")) return "txt";
+        return "txt";
+      }
+      function markdownLite(input) {
+        const raw = String(input || "").replace(/\r\n/g, "\n");
+        if (!raw.trim()) return "";
+        const lines = raw.split("\n");
+        const out = [];
+        let listType = "";
+        let quoteBuf = [];
+        let inCode = false;
+        let codeBuf = [];
+        function closeList(){ if(!listType) return; out.push(listType === "ol" ? "</ol>" : "</ul>"); listType = ""; }
+        function flushQuote(){ if(!quoteBuf.length) return; out.push(`<blockquote>${quoteBuf.map(q=>`<p>${inlineMd(q)}</p>`).join("")}</blockquote>`); quoteBuf = []; }
+        function flushCode(){ if(!inCode) return; out.push(`<pre><code>${esc(codeBuf.join("\n"))}</code></pre>`); inCode = false; codeBuf = []; }
+        for (const line of lines) {
+          const t = line.trim();
+          const fence = t.match(/^```/);
+          if (fence) { flushQuote(); closeList(); if(inCode) flushCode(); else { inCode = true; codeBuf = []; } continue; }
+          if (inCode) { codeBuf.push(line); continue; }
+          if (/^>\s?/.test(t)) { closeList(); quoteBuf.push(t.replace(/^>\s?/, "")); continue; } else { flushQuote(); }
+          if (!t) { closeList(); continue; }
+          if (/^[-*]\s+/.test(t) || /^\d+\.\s+/.test(t)) {
+            const next = /^\d+\.\s+/.test(t) ? "ol" : "ul";
+            if (listType && listType !== next) closeList();
+            if (!listType) { out.push(next === "ol" ? "<ol>" : "<ul>"); listType = next; }
+            const item = next === "ol" ? t.replace(/^\d+\.\s+/, "") : t.replace(/^[-*]\s+/, "");
+            out.push(`<li>${inlineMd(item)}</li>`);
+            continue;
+          }
+          closeList();
+          if (/^###\s+/.test(t)) out.push(`<h4>${inlineMd(t.replace(/^###\s+/, ""))}</h4>`);
+          else if (/^##\s+/.test(t)) out.push(`<h3>${inlineMd(t.replace(/^##\s+/, ""))}</h3>`);
+          else if (/^#\s+/.test(t)) out.push(`<h2>${inlineMd(t.replace(/^#\s+/, ""))}</h2>`);
+          else out.push(`<p>${inlineMd(t)}</p>`);
+        }
+        flushQuote(); closeList(); flushCode();
+        return out.join("");
+      }
+      function inlineMd(s) {
+        let x = esc(s);
+        x = x.replace(/`([^`]+)`/g, "<code>$1</code>");
+        x = x.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+        x = x.replace(/\*([^*]+)\*/g, "<em>$1</em>");
+        x = x.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer noopener">$1</a>');
+        return x;
+      }
+      function kindBySrcOrAsset(m, asset) {
+        if (asset && asset.kind) return asset.kind;
+        const src = String(m?.src || "").toLowerCase();
+        if (/\.(mp4|mov|webm|mkv)$/.test(src)) return "video";
+        if (/\.(mp3|wav|m4a|ogg)$/.test(src)) return "audio";
+        if (/\.(pdf|xml|ppt|pptx|doc|docx|xls|xlsx|txt|csv|json|zip|7z|rar)$/.test(src)) return "file";
+        return "image";
+      }
+      function resolvePreviewMediaUrl(m, asset, assetsBySrc) {
+        if (asset?.id) {
+          return (
+            apiBase +
+            "/api/projects/" +
+            encodeURIComponent(projectId) +
+            "/assets/" +
+            encodeURIComponent(asset.id) +
+            "/raw"
+          );
+        }
+        if (m?.assetId && !asset) return "";
+        if (m?.src && assetsBySrc.has(m.src)) {
+          const a = assetsBySrc.get(m.src);
+          return (
+            apiBase +
+            "/api/projects/" +
+            encodeURIComponent(projectId) +
+            "/assets/" +
+            encodeURIComponent(a.id) +
+            "/raw"
+          );
+        }
+        if (/^https?:\/\//i.test(String(m?.src || ""))) return m.src;
+        return "";
+      }
+
+      async function loadConfig() {
+        try {
+          const r = await fetch("/api/config");
+          if (!r.ok) return;
+          const j = await r.json();
+          apiBase = j.apiBaseUrl || apiBase;
+        } catch (_) {}
+      }
+
+      async function loadProject() {
+        const r = await fetch(apiBase + "/api/projects/" + encodeURIComponent(projectId));
+        const j = await r.json();
+        if (!r.ok) throw new Error(j.message || j.error || "加载项目失败");
+        project = j.project;
+        timeline = j.timeline;
+      }
+
+      function renderPreview() {
+        const heroTitle = document.getElementById("hero-title");
+        const heroDate = document.getElementById("hero-date");
+        const heroDesc = document.getElementById("hero-desc");
+        const nodesRoot = document.getElementById("preview-nodes");
+        const pUrl = document.getElementById("preview-url");
+        if (!project || !timeline) {
+          heroTitle.textContent = "导出预览";
+          heroDate.textContent = "无项目";
+          heroDesc.textContent = "请选择项目后再导出。";
+          nodesRoot.innerHTML = `<div class="empty">暂无可预览节点</div>`;
+          return;
+        }
+        pUrl.textContent = `local-export/${project.slug || project.id}/index.html`;
+        heroTitle.textContent = timeline.meta?.title || project.title || project.name || "未命名项目";
+        heroDate.textContent = timeline.nodes?.length ? new Date(timeline.nodes[0].timestamp).toLocaleDateString() : "暂无节点";
+        heroDesc.textContent = timeline.meta?.description || "导出后将以离线页面方式呈现完整时间线。";
+
+        const assets = new Map((timeline.meta?.assets || []).map((a) => [a.id, a]));
+        const assetsBySrc = new Map((timeline.meta?.assets || []).map((a) => [a.src, a]));
+        const nodes = Array.isArray(timeline.nodes) ? timeline.nodes : [];
+        if (!nodes.length) {
+          nodesRoot.innerHTML = `<div class="empty">暂无节点，导出包将只包含基础页面。</div>`;
+          return;
+        }
+        nodesRoot.innerHTML = nodes
+          .map((n, idx) => {
+            const layout = idx % 2 ? "right" : "left";
+            const nodeType = ["standard", "gallery", "quote", "video"].includes(n.type) ? n.type : "standard";
+            const rhythm = idx % 3 === 0 ? "rhythm-a" : idx % 3 === 1 ? "rhythm-b" : "rhythm-c";
+            const mediaCount = Math.min(3, Math.max(0, Array.isArray(n.media) ? n.media.length : 0));
+            const mediaCls = (Array.isArray(n.media) ? n.media.length : 0) >= 2 ? "media two-col" : "media";
+            const mediaHtml = (Array.isArray(n.media) ? n.media : [])
+              .map((m) => {
+                const asset = m.assetId ? assets.get(m.assetId) : null;
+                const src = resolvePreviewMediaUrl(m, asset, assetsBySrc);
+                const kind = kindBySrcOrAsset(m, asset);
+                const name = asset?.originalName || asset?.fileName || m.assetId || src || "文件";
+                if (kind === "video") {
+                  return `<div class="m-card">${src ? `<video src="${escAttr(src)}" controls preload="metadata"></video>` : `<div class="empty">视频资源不可用</div>`}</div>`;
+                }
+                if (kind === "audio") {
+                  return `<div class="m-card">${src ? `<audio src="${escAttr(src)}" controls preload="metadata"></audio>` : `<div class="empty">音频资源不可用</div>`}</div>`;
+                }
+                if (kind === "file") {
+                  const icon = fileIcon(name);
+                  const cls = fileIconClass(name);
+                  return `<div class="m-card">${src ? `<a class="m-file" href="${escAttr(src)}" target="_blank" rel="noreferrer noopener"><span class="m-file-icon ${esc(cls)}">${esc(icon)}</span><span>${esc(name)}</span></a>` : `<div class="empty">文件资源不可用</div>`}</div>`;
+                }
+                return `<div class="m-card">${src ? `<button class="img-trigger" type="button" data-preview-src="${escAttr(src)}" data-preview-alt="${escAttr(name)}"><img src="${escAttr(src)}" alt="${escAttr(name)}" /></button>` : `<div class="empty">图片资源不可用</div>`}</div>`;
+              })
+              .join("");
+            const link = n.link?.url
+              ? `<a class="link" href="${escAttr(n.link.url)}" target="_blank" rel="noreferrer noopener"><span>${esc(n.link.text || n.link.url)}</span><span>open</span></a>`
+              : "";
+            return `<article class="node ${layout} type-${nodeType} media-${mediaCount} ${rhythm}">
+              <div class="d">${esc(n.displayDateOverride || new Date(n.timestamp).toLocaleString())}${n.highlight ? " · 关键节点" : ""}</div>
+              <h3>${esc(n.title || "未命名节点")}</h3>
+              <div class="b">${markdownLite(n.body || "") || "<p>(无内容)</p>"}</div>
+              ${mediaHtml ? `<div class="${mediaCls}">${mediaHtml}</div>` : ""}
+              ${link}
+            </article>`;
+          })
+          .join("");
+      }
+
+      function bindPreviewLightbox() {
+        const box = document.getElementById("preview-lightbox");
+        const img = document.getElementById("preview-lightbox-img");
+        const closeBtn = document.getElementById("preview-lightbox-close");
+        if (!box || !img || !closeBtn) return;
+        const close = () => box.classList.remove("open");
+        document.getElementById("preview-nodes").addEventListener("click", (e) => {
+          const trigger = e.target.closest("[data-preview-src]");
+          if (!trigger) return;
+          img.src = trigger.getAttribute("data-preview-src") || "";
+          img.alt = trigger.getAttribute("data-preview-alt") || "";
+          box.classList.add("open");
+        });
+        closeBtn.addEventListener("click", close);
+        box.addEventListener("click", (e) => {
+          if (e.target === box) close();
+        });
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") close();
+        });
+      }
+
+      function setProgress(v) {
+        const val = Math.max(0, Math.min(100, Number(v || 0)));
+        document.getElementById("progress-value").textContent = `${val}%`;
+        document.getElementById("progress-bar").style.width = `${val}%`;
+      }
+
+      function setStatus(msg) {
+        document.getElementById("export-status").textContent = msg;
+      }
+
+      function bindSwitch(id, key, onChange) {
+        const el = document.getElementById(id);
+        function update() {
+          el.classList.toggle("on", Boolean(state[key]));
+          if (onChange) onChange(Boolean(state[key]));
+        }
+        el.addEventListener("click", () => {
+          state[key] = !state[key];
+          update();
+        });
+        update();
+      }
+
+      async function runExport() {
+        if (!projectId) {
+          setStatus("缺少 projectId，无法导出。");
+          return;
+        }
+        setProgress(8);
+        setStatus("准备导出参数...");
+        const password = document.getElementById("password-input").value.trim();
+        const payload = {
+          passwordProtect: state.passwordProtect,
+          password: state.passwordProtect ? password : "",
+          losslessAssets: state.losslessAssets,
+          removeMetadata: state.removeMetadata
+        };
+        setProgress(26);
+        setStatus("正在请求后端打包...");
+        try {
+          const r = await fetch(apiBase + "/api/projects/" + encodeURIComponent(projectId) + "/export", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+          const j = await r.json();
+          if (!r.ok) throw new Error(j.message || j.error || "导出失败");
+          setProgress(100);
+          state.lastExportPath = j.exportPath || "";
+          const pathParts = String(state.lastExportPath).split(/[\\/]/).filter(Boolean);
+          state.lastExportBundle = pathParts.length ? pathParts[pathParts.length - 1] : "";
+          const openBtn = document.getElementById("open-export-dir-btn");
+          if (openBtn && state.lastExportPath) {
+            openBtn.style.display = "block";
+            openBtn.textContent = "打开导出页面(index.html)";
+          }
+          const lines = [
+            "导出成功",
+            `导出目录: ${j.exportPath || "-"}`,
+            `节点数: ${j.nodeCount || 0}，资产复制: ${j.copiedAssets || 0}`
+          ];
+          if (Array.isArray(j.warnings) && j.warnings.length) {
+            lines.push("警告:");
+            j.warnings.forEach((w) => lines.push(`- ${w}`));
+          }
+          setStatus(lines.join("\n"));
+        } catch (e) {
+          setProgress(0);
+          setStatus("导出失败: " + (e.message || "未知错误"));
+        }
+      }
+
+      async function openExportDir() {
+        if (!state.lastExportPath) {
+          setStatus("暂无导出目录，请先执行导出。");
+          return;
+        }
+        try {
+          if (!state.lastExportBundle) {
+            const pathParts = String(state.lastExportPath).split(/[\\/]/).filter(Boolean);
+            state.lastExportBundle = pathParts.length ? pathParts[pathParts.length - 1] : "";
+          }
+          const exportIndexUrl =
+            apiBase +
+            "/api/projects/" +
+            encodeURIComponent(projectId) +
+            "/exports/" +
+            encodeURIComponent(state.lastExportBundle) +
+            "/index.html";
+          const win = window.open(exportIndexUrl, "_blank", "noopener");
+          if (!win) {
+            setStatus(`浏览器拦截了新标签，请手动打开: ${exportIndexUrl}`);
+            return;
+          }
+          setStatus(`已在新标签尝试打开导出页面: ${exportIndexUrl}`);
+        } catch (e) {
+          setStatus(`打开导出页面失败: ${e.message || "未知错误"}\n你也可以手动前往目录: ${state.lastExportPath}`);
+        }
+      }
+
+      async function bootstrap() {
+        await loadConfig();
+        const url = new URL(location.href);
+        projectId = url.searchParams.get("projectId") || "";
+        const titleHint = url.searchParams.get("projectTitle") || "";
+        const nameHint = url.searchParams.get("projectName") || "";
+        if (!projectId) {
+          setStatus("缺少 projectId，请从项目页面进入。");
+          document.getElementById("hero-title").textContent = titleHint || nameHint || "未选择项目";
+          return;
+        }
+        document.getElementById("to-editor-link").href =
+          `/editor?projectId=${encodeURIComponent(projectId)}&projectTitle=${encodeURIComponent(
+            titleHint
+          )}&projectName=${encodeURIComponent(nameHint)}`;
+
+        bindSwitch("sw-password", "passwordProtect", (on) => {
+          document.getElementById("password-input").style.display = on ? "block" : "none";
+        });
+        bindSwitch("sw-lossless", "losslessAssets");
+        bindSwitch("sw-remove-meta", "removeMetadata");
+        document.getElementById("run-export-btn").addEventListener("click", runExport);
+        document.getElementById("open-export-dir-btn").addEventListener("click", openExportDir);
+        bindPreviewLightbox();
+
+        try {
+          await loadProject();
+          renderPreview();
+          setStatus("项目已加载，可直接执行导出。");
+          setProgress(16);
+        } catch (e) {
+          setStatus("加载失败: " + (e.message || "未知错误"));
+        }
+      }
+
+      bootstrap();
+    </script>
+  </body>
+</html>
